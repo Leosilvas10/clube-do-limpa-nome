@@ -1,4 +1,4 @@
-import VideoThumb from "@/public/images/hero-image-01.jpg";
+import VideoThumb from "@/public/images/homem-preocupado.png";
 import ModalVideo from "@/components/modal-video";
 
 export default function HeroHome() {
@@ -43,7 +43,7 @@ export default function HeroHome() {
                     className="btn relative w-full bg-linear-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%] sm:ml-4 sm:w-auto"
                     href="#0"
                   >
-                      solicitar demonstração
+                    Quero entender como funciona
                   </a>
                 </div>
               </div>
@@ -54,8 +54,8 @@ export default function HeroHome() {
             thumb={VideoThumb}
             thumbWidth={1104}
             thumbHeight={576}
-            thumbAlt="Modal video thumbnail"
-            video="videos//video.mp4"
+            thumbAlt="Homem preocupado"
+            video="/videos/vsl-clube.mp4"
             videoWidth={1920}
             videoHeight={1080}
           />

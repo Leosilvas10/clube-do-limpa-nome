@@ -11,7 +11,6 @@ interface ModalVideoProps {
   thumbWidth: number;
   thumbHeight: number;
   thumbAlt: string;
-  video: string;
   videoWidth: number;
   videoHeight: number;
 }
@@ -21,12 +20,14 @@ export default function ModalVideo({
   thumbWidth,
   thumbHeight,
   thumbAlt,
-  video,
   videoWidth,
   videoHeight,
 }: ModalVideoProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Caminho correto do vídeo
+  const video = "/videos/Vsl-Clube.mp4";
 
   return (
     <div className="relative">
@@ -94,9 +95,9 @@ export default function ModalVideo({
               </defs>
             </svg>
             <span className="text-sm font-medium leading-tight text-gray-300">
-              Watch Demo
-              <span className="text-gray-600"> - </span>
-              3:47
+              Clique aqui e veja o que ninguém nunca te contou sobre ter seu nome sujo
+              <span className="text-gray-600"></span>
+          
             </span>
           </span>
         </span>
