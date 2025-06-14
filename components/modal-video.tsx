@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { StaticImageData } from "next/image";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Image from "next/image";
 import SecondaryIllustration from "@/public/images/secondary-illustration.svg";
 
 interface ModalVideoProps {
-  thumb: StaticImageData;
+  thumb: string;
   thumbWidth: number;
   thumbHeight: number;
   thumbAlt: string;
@@ -97,7 +96,6 @@ export default function ModalVideo({
             <span className="text-sm font-medium leading-tight text-gray-300">
               Clique aqui e veja o que ninguém nunca te contou sobre ter seu nome sujo
               <span className="text-gray-600"></span>
-          
             </span>
           </span>
         </span>
