@@ -22,15 +22,13 @@ export default function Header() {
 
           {/* Desktop sign in links */}
           <ul className="flex flex-1 items-center justify-end gap-3">
-            <li>
-
-            </li>
+            <li></li>
             <li>
               <Link
-                href="/signup"
-                className="btn-sm bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] py-[5px] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%]"
+                href="#oferta"
+                className="btn-sm rounded-md bg-[#00B8C4] px-4 py-2 text-white transition duration-300 hover:bg-[#FF6A00]"
               >
-                Receber oferta 
+                Receber oferta
               </Link>
             </li>
           </ul>

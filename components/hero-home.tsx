@@ -1,6 +1,15 @@
 import VideoThumb from "@/public/images/homem-preocupado.png";
 import ModalVideo from "@/components/modal-video";
 
+const whatsappNumber = "+557581158083";
+const whatsappMessage = encodeURIComponent(
+  "Olá! Tenho interesse em limpar meu nome."
+);
+const whatsappLink = `https://wa.me/${whatsappNumber.replace(
+  /[^\d]/g,
+  ""
+)}/?text=${whatsappMessage}`;
+
 export default function HeroHome() {
   return (
     <section>
@@ -25,25 +34,32 @@ export default function HeroHome() {
                 Não adie sua felicidade: limpe seu nome e volte a sonhar pagando pouco por dia
               </p>
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
+                {/* BOTÃO CONTRATAR JÁ */}
                 <div data-aos="fade-up" data-aos-delay={400}>
                   <a
-                    className="btn group mb-4 w-full bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%] sm:mb-0 sm:w-auto"
-                    href="#0"
+                    className="btn group mb-4 w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:mb-0 sm:w-auto"
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <span className="relative inline-flex items-center">
                       contratar já
-                      <span className="ml-1 tracking-normal text-white/50 transition-transform group-hover:translate-x-0.5">
+                      <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
                         -&gt;
                       </span>
                     </span>
                   </a>
                 </div>
+
+                {/* BOTÃO QUERO ENTENDER */}
                 <div data-aos="fade-up" data-aos-delay={600}>
                   <a
-                    className="btn relative w-full bg-linear-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%] sm:ml-4 sm:w-auto"
-                    href="#0"
+                    className="btn relative w-full flex items-center rounded-md bg-gradient-to-b from-gray-800 to-gray-800/60 px-6 py-2 text-[#F4F4F4] transition duration-300 hover:bg-[#00394D] hover:text-white sm:ml-4 sm:w-auto"
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Quero entender como funciona
+                    Contratar Cota
                   </a>
                 </div>
               </div>
