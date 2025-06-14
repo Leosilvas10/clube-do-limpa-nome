@@ -4,10 +4,12 @@ import Workflows from "@/components/workflows";
 import Features from "@/components/features";
 import Cta from "@/components/cta";
 import FormLead from "@/components/FormLead";
+import ExitIntentLeadForm from "@/components/ExitIntentLeadForm";
 
 export default function Home() {
   return (
     <>
+      <ExitIntentLeadForm />
       <PageIllustration />
       <Hero />
       <Features />

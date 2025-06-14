@@ -1,5 +1,8 @@
+"use client";
+
 import VideoThumb from "@/public/images/homem-preocupado.png";
 import ModalVideo from "@/components/modal-video";
+import { useState, useEffect } from "react";
 
 const whatsappNumber = "+557581158083";
 const whatsappMessage = encodeURIComponent(
@@ -10,7 +13,27 @@ const whatsappLink = `https://wa.me/${whatsappNumber.replace(
   ""
 )}/?text=${whatsappMessage}`;
 
+function formatTime(seconds: number) {
+  const d = Math.floor(seconds / (24 * 60 * 60));
+  const h = Math.floor((seconds % (24 * 60 * 60)) / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${d.toString().padStart(2, "0")}d `
+    + `${h.toString().padStart(2, "0")}:`
+    + `${m.toString().padStart(2, "0")}:`
+    + `${s.toString().padStart(2, "0")}`;
+}
+
 export default function HeroHome() {
+  // 30 dias em segundos
+  const [timer, setTimer] = useState(30 * 24 * 60 * 60);
+
+  useEffect(() => {
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
   return (
     <section>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -33,23 +56,36 @@ export default function HeroHome() {
               >
                 Não adie sua felicidade: limpe seu nome e volte a sonhar pagando pouco por dia
               </p>
-              {/* Apenas um CTA: Contratar Cota, azul com hover laranja */}
-              <div className="mx-auto max-w-xs flex justify-center">
-                <a
-                  className="btn group w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:w-auto"
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-aos="fade-up"
-                  data-aos-delay={400}
-                >
-                  <span className="relative inline-flex items-center">
-                    Contratar Cota
-                    <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
-                      →
+              {/* Esconde os CTAs no mobile, mostra apenas em sm+ */}
+              <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center hidden sm:block">
+                {/* BOTÃO CONTRATAR JÁ */}
+                <div data-aos="fade-up" data-aos-delay={400}>
+                  <a
+                    className="btn group mb-4 w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:mb-0 sm:w-auto"
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="relative inline-flex items-center">
+                      contratar já
+                      <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+                        -&gt;
+                      </span>
                     </span>
-                  </span>
-                </a>
+                  </a>
+                </div>
+
+                {/* BOTÃO QUERO ENTENDER */}
+                <div data-aos="fade-up" data-aos-delay={600}>
+                  <a
+                    className="btn relative w-full flex items-center rounded-md bg-gradient-to-b from-gray-800 to-gray-800/60 px-6 py-2 text-[#F4F4F4] transition duration-300 hover:bg-[#00394D] hover:text-white sm:ml-4 sm:w-auto"
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Contratar Cota
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -63,6 +99,29 @@ export default function HeroHome() {
             videoWidth={1920}
             videoHeight={1080}
           />
+
+          {/* Oferta por tempo limitado e timer */}
+          <div className="w-full flex flex-col items-center mt-8">
+            <span className="text-[#FF6A00] font-bold text-lg uppercase mb-2 tracking-wide">
+              OFERTAS POR TEMPO LIMITADO
+            </span>
+            <span className="text-3xl font-mono font-bold text-[#00B5BF] mb-4">
+              {formatTime(timer)}
+            </span>
+            <a
+              className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white"
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="relative inline-flex items-center justify-center">
+                Fale com um especialista
+                <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
