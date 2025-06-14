@@ -1,39 +1,19 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import type { StaticImageData } from "next/image";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Image from "next/image";
 import SecondaryIllustration from "@/public/images/secondary-illustration.svg";
 
 interface ModalVideoProps {
-  thumb: string | StaticImageData; // <-- ajuste aqui
+  thumb: string | StaticImageData;
   thumbWidth: number;
   thumbHeight: number;
   thumbAlt: string;
   video: string;
   videoWidth: number;
   videoHeight: number;
-}
-
-const whatsappNumber = "+557581158083";
-const whatsappMessage = encodeURIComponent(
-  "Olá! Tenho interesse em limpar meu nome."
-);
-const whatsappLink = `https://wa.me/${whatsappNumber.replace(
-  /[^\d]/g,
-  ""
-)}/?text=${whatsappMessage}`;
-
-function formatTime(seconds: number) {
-  const d = Math.floor(seconds / (24 * 60 * 60));
-  const h = Math.floor((seconds % (24 * 60 * 60)) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${d.toString().padStart(2, "0")}d `
-    + `${h.toString().padStart(2, "0")}:`
-    + `${m.toString().padStart(2, "0")}:`
-    + `${s.toString().padStart(2, "0")}`;
 }
 
 export default function ModalVideo({
@@ -47,20 +27,6 @@ export default function ModalVideo({
 }: ModalVideoProps) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Timer de 30 dias em segundos
-  const [timer, setTimer] = useState(30 * 24 * 60 * 60);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
-    if (modalOpen && timer > 0) {
-      interval = setInterval(() => setTimer((t) => t - 1), 1000);
-    }
-    if (!modalOpen) {
-      setTimer(30 * 24 * 60 * 60); // Reseta ao fechar o modal
-    }
-    return () => clearInterval(interval);
-  }, [modalOpen, timer]);
 
   return (
     <div className="relative">
@@ -149,7 +115,7 @@ export default function ModalVideo({
           <div className="mx-auto flex h-full max-w-6xl items-center">
             <DialogPanel
               transition
-              className="aspect-video max-h-full w-full overflow-hidden rounded-2xl bg-black shadow-2xl duration-300 ease-out data-closed:scale-95 data-closed:opacity-0 flex flex-col items-center justify-center"
+              className="aspect-video max-h-full w-full overflow-hidden rounded-2xl bg-black shadow-2xl duration-300 ease-out data-closed:scale-95 data-closed:opacity-0"
             >
               <video
                 ref={videoRef}
@@ -161,29 +127,6 @@ export default function ModalVideo({
                 <source src={video} type="video/mp4" />
                 Seu navegador não suporta o vídeo.
               </video>
-
-              {/* Oferta por tempo limitado e timer */}
-              <div className="w-full flex flex-col items-center mt-8">
-                <span className="text-[#FF6A00] font-bold text-lg uppercase mb-2 tracking-wide">
-                  OFERTAS POR TEMPO LIMITADO
-                </span>
-                <span className="text-2xl font-mono font-bold text-[#00B5BF] mb-4">
-                  {formatTime(timer)}
-                </span>
-                <a
-                  className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white"
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="relative inline-flex items-center justify-center">
-                    Fale com um especialista no WhatsApp
-                    <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
-                      →
-                    </span>
-                  </span>
-                </a>
-              </div>
             </DialogPanel>
           </div>
         </div>
