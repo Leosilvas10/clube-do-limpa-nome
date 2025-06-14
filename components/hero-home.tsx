@@ -33,35 +33,23 @@ export default function HeroHome() {
               >
                 Não adie sua felicidade: limpe seu nome e volte a sonhar pagando pouco por dia
               </p>
-              <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
-                {/* BOTÃO CONTRATAR JÁ */}
-                <div data-aos="fade-up" data-aos-delay={400}>
-                  <a
-                    className="btn group mb-4 w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:mb-0 sm:w-auto"
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="relative inline-flex items-center">
-                      contratar já
-                      <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
-                        -&gt;
-                      </span>
-                    </span>
-                  </a>
-                </div>
-
-                {/* BOTÃO QUERO ENTENDER */}
-                <div data-aos="fade-up" data-aos-delay={600}>
-                  <a
-                    className="btn relative w-full flex items-center rounded-md bg-gradient-to-b from-gray-800 to-gray-800/60 px-6 py-2 text-[#F4F4F4] transition duration-300 hover:bg-[#00394D] hover:text-white sm:ml-4 sm:w-auto"
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+              {/* Apenas um CTA: Contratar Cota, azul com hover laranja */}
+              <div className="mx-auto max-w-xs flex justify-center">
+                <a
+                  className="btn group w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:w-auto"
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-aos="fade-up"
+                  data-aos-delay={400}
+                >
+                  <span className="relative inline-flex items-center">
                     Contratar Cota
-                  </a>
-                </div>
+                    <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+                      →
+                    </span>
+                  </span>
+                </a>
               </div>
             </div>
           </div>
