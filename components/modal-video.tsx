@@ -65,35 +65,27 @@ export default function ModalVideo({
           />
         </figure>
         {/* Play icon */}
-        <span className="pointer-events-none absolute p-2.5 before:absolute before:inset-0 before:rounded-full before:bg-gray-950 before:duration-300 group-hover:before:scale-110">
+        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 p-2.5 sm:p-4 md:p-6 before:absolute before:inset-0 before:rounded-full before:bg-transparent">
           <span className="relative flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width={20}
-              height={20}
+              width={48}
+              height={48}
+              viewBox="0 0 48 48"
               fill="none"
+              className="drop-shadow-md"
             >
-              <path
-                fill="url(#pla)"
-                fillRule="evenodd"
-                d="M10 20c5.523 0 10-4.477 10-10S15.523 0 10 0 0 4.477 0 10s4.477 10 10 10Zm3.5-10-5-3.5v7l5-3.5Z"
-                clipRule="evenodd"
+              <circle
+                cx="24"
+                cy="24"
+                r="22"
+                stroke="#00B5BF"
+                strokeWidth="4"
+                fill="none"
               />
-              <defs>
-                <linearGradient
-                  id="pla"
-                  x1={10}
-                  x2={10}
-                  y1={0}
-                  y2={20}
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="#6366F1" />
-                  <stop offset={1} stopColor="#6366F1" stopOpacity=".72" />
-                </linearGradient>
-              </defs>
+              <polygon points="20,16 34,24 20,32" fill="#00B5BF" />
             </svg>
-            <span className="text-sm font-medium leading-tight text-gray-300">
+            <span className="hidden sm:inline text-sm font-medium leading-tight text-gray-300">
               Clique aqui e veja o que ninguém nunca te contou sobre ter seu nome sujo
               <span className="text-gray-600"></span>
             </span>
