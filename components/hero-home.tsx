@@ -14,25 +14,38 @@ const whatsappLink = `https://wa.me/${whatsappNumber.replace(
 )}/?text=${whatsappMessage}`;
 
 function formatTime(seconds: number) {
-  const d = Math.floor(seconds / (24 * 60 * 60));
-  const h = Math.floor((seconds % (24 * 60 * 60)) / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${d.toString().padStart(2, "0")}d `
-    + `${h.toString().padStart(2, "0")}:`
-    + `${m.toString().padStart(2, "0")}:`
-    + `${s.toString().padStart(2, "0")}`;
+  const m = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
 }
 
 export default function HeroHome() {
-  // 30 dias em segundos
-  const [timer, setTimer] = useState(30 * 24 * 60 * 60);
+  // 15 minutos em segundos
+  const INITIAL_TIME = 15 * 60;
+  const [timer, setTimer] = useState(INITIAL_TIME);
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(() => {
-    if (timer <= 0) return;
-    const interval = setInterval(() => setTimer((t) => t - 1), 1000);
-    return () => clearInterval(interval);
-  }, [timer]);
+    let interval: NodeJS.Timeout | null = null;
+    let timeout: NodeJS.Timeout | null = null;
+
+    if (!waiting && timer > 0) {
+      interval = setInterval(() => setTimer((t) => t - 1), 1000);
+    } else if (!waiting && timer === 0) {
+      setWaiting(true);
+      timeout = setTimeout(() => {
+        setTimer(INITIAL_TIME);
+        setWaiting(false);
+      }, 60 * 1000); // espera 1 minuto
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [timer, waiting]);
 
   return (
     <section>
@@ -105,8 +118,8 @@ export default function HeroHome() {
             <span className="text-[#FF6A00] font-bold text-lg uppercase mb-2 tracking-wide">
               OFERTAS POR TEMPO LIMITADO
             </span>
-            <span className="text-3xl font-mono font-bold text-[#00B5BF] mb-4">
-              {formatTime(timer)}
+            <span className="text-3xl font-mono font-bold text-[#00B5BF] mb-4 border-2 border-[#FF6A00] px-8 py-2 rounded">
+              {waiting ? "Aguarde 01:00" : formatTime(timer)}
             </span>
             <a
               className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white"

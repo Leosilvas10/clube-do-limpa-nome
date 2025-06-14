@@ -103,7 +103,7 @@ export default function ExitIntentLeadForm() {
           ×
         </button>
         <h3 className="text-center text-xl font-semibold text-white mb-6">
-          Antes de sair, receba o contato de um especialista!
+          Antes de sair, receba o contato de um de nossos especialistas!
         </h3>
         <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
@@ -139,9 +139,6 @@ export default function ExitIntentLeadForm() {
               placeholder="(99) 90000-0000"
               required
             />
-            <span className="block mt-1 text-xs text-gray-400">
-              Exemplo: (31) 91234-5678
-            </span>
           </div>
           <div>
             <label
