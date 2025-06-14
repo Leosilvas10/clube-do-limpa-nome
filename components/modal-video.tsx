@@ -16,6 +16,15 @@ interface ModalVideoProps {
   videoHeight: number;
 }
 
+const whatsappNumber = "+557581158083";
+const whatsappMessage = encodeURIComponent(
+  "Olá! Tenho interesse em limpar meu nome."
+);
+const whatsappLink = `https://wa.me/${whatsappNumber.replace(
+  /[^\d]/g,
+  ""
+)}/?text=${whatsappMessage}`;
+
 export default function ModalVideo({
   thumb,
   thumbWidth,
@@ -29,7 +38,7 @@ export default function ModalVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col items-center">
       {/* Secondary illustration */}
       <div
         className="pointer-events-none absolute bottom-8 left-1/2 -z-10 -ml-28 -translate-x-1/2 translate-y-1/2"
@@ -101,6 +110,23 @@ export default function ModalVideo({
         </span>
       </button>
       {/* End: Video thumbnail */}
+
+      {/* CTA Button abaixo do vídeo */}
+      <div className="mt-8 flex justify-center w-full" data-aos="fade-up" data-aos-delay={400}>
+        <a
+          className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white"
+          href={whatsappLink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="relative inline-flex items-center justify-center">
+            Fale com um especialista no WhatsApp
+            <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+              →
+            </span>
+          </span>
+        </a>
+      </div>
 
       <Dialog
         initialFocus={videoRef}
