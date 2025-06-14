@@ -51,7 +51,7 @@ export default function HeroHome() {
           </div>
 
           <ModalVideo
-            thumb={VideoThumb.src}
+            thumb={VideoThumb}
             thumbWidth={1104}
             thumbHeight={576}
             thumbAlt="Homem preocupado"
