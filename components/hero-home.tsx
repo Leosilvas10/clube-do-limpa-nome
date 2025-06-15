@@ -71,32 +71,18 @@ export default function HeroHome() {
               </p>
               {/* Esconde os CTAs no mobile, mostra apenas em sm+ */}
               <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center hidden sm:block">
-                {/* BOTÃO CONTRATAR JÁ */}
-                <div data-aos="fade-up" data-aos-delay={400}>
-                  <a
-                    className="btn group mb-4 w-full rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:mb-0 sm:w-auto"
-                    href={whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <span className="relative inline-flex items-center">
-                      contratar já
-                      <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
-                        -&gt;
-                      </span>
-                    </span>
-                  </a>
-                </div>
-
-                {/* BOTÃO QUERO ENTENDER */}
+                {/* BOTÃO CONTRATAR COTA */}
                 <div data-aos="fade-up" data-aos-delay={600}>
                   <a
-                    className="btn relative w-full flex items-center rounded-md bg-gradient-to-b from-gray-800 to-gray-800/60 px-6 py-2 text-[#F4F4F4] transition duration-300 hover:bg-[#00394D] hover:text-white sm:ml-4 sm:w-auto"
+                    className="btn w-full flex items-center justify-center rounded-md bg-[#00B5BF] px-6 py-2 text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white sm:w-auto"
                     href={whatsappLink}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Contratar Cota
+                    <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+                      →
+                    </span>
                   </a>
                 </div>
               </div>
@@ -108,7 +94,7 @@ export default function HeroHome() {
             thumbWidth={1104}
             thumbHeight={576}
             thumbAlt="Homem preocupado"
-            video="/videos/vsl-clube.mp4"
+            video="/videos/vsl-clube-v2.mp4"
             videoWidth={1920}
             videoHeight={1080}
           />
@@ -122,16 +108,14 @@ export default function HeroHome() {
               {waiting ? "Aguarde 01:00" : formatTime(timer)}
             </span>
             <a
-              className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-2 text-center text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white"
+              className="btn w-full flex items-center justify-center rounded-md bg-[#00B5BF] px-6 py-2 text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white max-w-xs"
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span className="relative inline-flex items-center justify-center">
-                Fale com um especialista
-                <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
-                  →
-                </span>
+              Fale com um especialista
+              <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
+                →
               </span>
             </a>
           </div>
