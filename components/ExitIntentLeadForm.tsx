@@ -9,20 +9,38 @@ export default function ExitIntentLeadForm() {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Só ativa o evento se ainda não foi mostrado
     if (typeof window === "undefined") return;
     if (localStorage.getItem("exitIntentLeadShown") === "true") return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (e.clientY <= 60) {
-        setShowModal(true);
-        localStorage.setItem("exitIntentLeadShown", "true");
-        window.removeEventListener("mousemove", handleMouseMove);
-      }
+    let hasInteracted = false;
+    let exitIntentListener: ((e: MouseEvent) => void) | null = null;
+
+    const activateExitIntent = () => {
+      if (exitIntentListener) return;
+      exitIntentListener = (e: MouseEvent) => {
+        if (e.clientY <= 60) {
+          setShowModal(true);
+          localStorage.setItem("exitIntentLeadShown", "true");
+          window.removeEventListener("mousemove", exitIntentListener!);
+        }
+      };
+      window.addEventListener("mousemove", exitIntentListener);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    const handleFirstMove = () => {
+      hasInteracted = true;
+      activateExitIntent();
+      window.removeEventListener("mousemove", handleFirstMove);
+    };
+
+    window.addEventListener("mousemove", handleFirstMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleFirstMove);
+      if (exitIntentListener) {
+        window.removeEventListener("mousemove", exitIntentListener);
+      }
+    };
   }, []);
 
   // Fecha modal ao clicar fora
