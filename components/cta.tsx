@@ -1,19 +1,8 @@
+// components/cta.tsx
+
 "use client";
 
-import { useState } from "react";
-
-const whatsappNumber = "+557581158083";
-const whatsappMessage = encodeURIComponent(
-  "Olá! Tenho interesse em limpar meu nome."
-);
-const whatsappLink = `https://wa.me/${whatsappNumber.replace(
-  /[^\d]/g,
-  ""
-)}/?text=${whatsappMessage}`;
-
 export default function Cta() {
-  const [clicked, setClicked] = useState(false);
-
   return (
     <section className="w-full py-12 bg-gradient-to-b from-[#00141A] to-[#00141A]/80 flex flex-col items-center">
       <div className="max-w-2xl w-full px-4 text-center">
@@ -25,23 +14,15 @@ export default function Cta() {
         </p>
         <a
           className="btn group w-full max-w-xs rounded-md bg-[#00B5BF] px-6 py-3 text-center text-[#F4F4F4] font-semibold text-lg transition duration-300 hover:bg-[#FF6A00] hover:text-white inline-block"
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => setClicked(true)}
+          href="#oferta"
         >
           <span className="relative inline-flex items-center justify-center">
-            Fale com um especialista
+            Adquirir Consórcio
             <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
               →
             </span>
           </span>
         </a>
-        {clicked && (
-          <p className="mt-4 text-green-400 text-sm">
-            Redirecionando para o WhatsApp...
-          </p>
-        )}
       </div>
     </section>
   );

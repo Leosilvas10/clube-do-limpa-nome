@@ -5,6 +5,7 @@ import Features from "@/components/features";
 import Cta from "@/components/cta";
 import FormLead from "@/components/FormLead";
 import ExitIntentLeadForm from "@/components/ExitIntentLeadForm";
+import Faq from "@/components/Faq";
 
 export default function Home() {
   return (
@@ -14,10 +15,10 @@ export default function Home() {
       <Hero />
       <Features />
       <Workflows />
+      <Faq />
       <Cta />
-
-      {/* 🔻 Aqui entra o formulário com a âncora */}
-      <section id="oferta" className="px-4 py-16 sm:py-20">
+      {/* 🔻 Formulário com padding ajustado */}
+      <section id="oferta" className="px-4 py-8 sm:py-10">
         <FormLead />
       </section>
     </>

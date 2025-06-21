@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { StaticImageData } from "next/image";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import Image from "next/image";
@@ -28,8 +28,57 @@ export default function ModalVideo({
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Play o vídeo assim que o modal abrir
+  useEffect(() => {
+    if (modalOpen && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      // Tenta dar play (com áudio) após interação do usuário
+      videoRef.current.play().catch(() => {});
+    }
+  }, [modalOpen]);
+
+  // Bloquear pausar, avançar, retroceder
+  useEffect(() => {
+    const handlePrevent = (e: Event) => {
+      e.preventDefault();
+      if (videoRef.current) {
+        videoRef.current.play();
+      }
+    };
+
+    const videoEl = videoRef.current;
+    if (videoEl) {
+      videoEl.addEventListener("pause", handlePrevent);
+      videoEl.addEventListener("seeking", handlePrevent);
+      videoEl.addEventListener("seeked", handlePrevent);
+      videoEl.addEventListener("ended", handlePrevent);
+      videoEl.addEventListener("contextmenu", (e) => e.preventDefault());
+      videoEl.addEventListener("mousedown", handlePrevent);
+      videoEl.addEventListener("touchstart", handlePrevent);
+    }
+
+    return () => {
+      if (videoEl) {
+        videoEl.removeEventListener("pause", handlePrevent);
+        videoEl.removeEventListener("seeking", handlePrevent);
+        videoEl.removeEventListener("seeked", handlePrevent);
+        videoEl.removeEventListener("ended", handlePrevent);
+        videoEl.removeEventListener("contextmenu", (e) => e.preventDefault());
+        videoEl.removeEventListener("mousedown", handlePrevent);
+        videoEl.removeEventListener("touchstart", handlePrevent);
+      }
+    };
+  }, [modalOpen]);
+
   return (
     <div className="relative">
+      {/* Aviso para ativar o som */}
+      <div className="flex justify-center mb-4">
+        <div className="bg-[#FF6A00]/10 border border-[#FF6A00] rounded px-4 py-2 text-[#FF6A00] text-sm font-semibold shadow-sm">
+          ⚠️ Ative o som do seu dispositivo para ouvir o vídeo completo.
+        </div>
+      </div>
+
       {/* Secondary illustration */}
       <div
         className="pointer-events-none absolute bottom-8 left-1/2 -z-10 -ml-28 -translate-x-1/2 translate-y-1/2"
@@ -47,9 +96,7 @@ export default function ModalVideo({
       {/* Video thumbnail */}
       <button
         className="group relative flex items-center justify-center rounded-2xl focus:outline-hidden focus-visible:ring-3 focus-visible:ring-indigo-200"
-        onClick={() => {
-          setModalOpen(true);
-        }}
+        onClick={() => setModalOpen(true)}
         aria-label="Watch the video"
         data-aos="fade-up"
         data-aos-delay={200}
@@ -113,8 +160,17 @@ export default function ModalVideo({
                 ref={videoRef}
                 width={videoWidth}
                 height={videoHeight}
-                loop
-                controls
+                autoPlay
+                playsInline
+                tabIndex={-1}
+                style={{ pointerEvents: "none", userSelect: "none" }}
+                onContextMenu={(e) => e.preventDefault()}
+                onPause={() => {
+                  if (videoRef.current) videoRef.current.play();
+                }}
+                onSeeking={() => {
+                  if (videoRef.current) videoRef.current.currentTime = 0;
+                }}
               >
                 <source src={video} type="video/mp4" />
                 Seu navegador não suporta o vídeo.
