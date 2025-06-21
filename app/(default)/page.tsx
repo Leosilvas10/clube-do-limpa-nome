@@ -21,6 +21,7 @@ export default function Home() {
       <section id="oferta" className="px-4 py-8 sm:py-10">
         <FormLead />
       </section>
+      {/* NÃO coloque <Footer /> aqui! */}
     </>
   );
 }

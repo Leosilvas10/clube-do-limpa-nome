@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Script from "next/script";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Footer from "@/components/ui/footer";
 
 export default function DefaultLayout({
   children,
@@ -48,7 +47,7 @@ export default function DefaultLayout({
       </noscript>
 
       <main className="relative flex grow flex-col">{children}</main>
-      <Footer />
+      {/* Footer removido daqui! */}
     </>
   );
 }
