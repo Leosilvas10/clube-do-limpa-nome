@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { FiPlus, FiMinus } from "react-icons/fi";
 
+interface FaqProps {
+  onCTAClick?: () => void;
+}
+
 const faqData = [
   {
     question: "Eu preciso pagar minha dívida para limpar o nome?",
@@ -26,7 +30,7 @@ const faqData = [
   },
 ];
 
-export default function Faq() {
+export default function Faq({ onCTAClick }: FaqProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const handleToggle = (idx: number) => {

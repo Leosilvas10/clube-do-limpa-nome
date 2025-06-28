@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const router = useRouter();
   return (
     <header className="z-30 mt-2 w-full md:mt-5">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -25,12 +27,15 @@ export default function Header() {
           <ul className="flex flex-1 items-center justify-end gap-3">
             <li></li>
             <li>
-              <Link
-                href="#oferta"
+              <button
                 className="btn-sm rounded-md bg-[#00B8C4] px-4 py-2 text-white transition duration-300 hover:bg-[#FF6A00]"
+                onClick={() => {
+                  // Dispara evento global para abrir o modal
+                  window.dispatchEvent(new CustomEvent("open-lead-modal"));
+                }}
               >
                 Receber oferta
-              </Link>
+              </button>
             </li>
           </ul>
         </div>

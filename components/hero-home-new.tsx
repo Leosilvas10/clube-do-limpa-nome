@@ -12,10 +12,9 @@ function formatTime(seconds: number) {
 
 interface HeroHomeProps {
   onReplayVSL?: () => void;
-  onCTAClick?: () => void;
 }
 
-export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
+export default function HeroHome({ onReplayVSL }: HeroHomeProps) {
   // 15 minutos em segundos
   const INITIAL_TIME = 15 * 60;
   const [timer, setTimer] = useState(INITIAL_TIME);
@@ -42,30 +41,30 @@ export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
   }, [timer, waiting]);
 
   return (
-    <section className="relative bg-gradient-to-b from-gray-900 to-gray-800">
+    <section className="relative bg-gradient-to-b from-gray-100 to-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="pb-12 pt-32 md:pb-20 md:pt-40">
           {/* Título principal */}
           <div className="pb-12 text-center md:pb-16">
             <h1
-              className="mb-6 border-y text-5xl font-bold text-white [border-image:linear-gradient(to_right,transparent,theme(colors.slate.300/.8),transparent)1] md:text-6xl"
+              className="mb-6 border-y text-5xl font-bold [border-image:linear-gradient(to_right,transparent,theme(colors.slate.300/.8),transparent)1] md:text-6xl"
               data-aos="zoom-y-out"
               data-aos-delay={150}
             >
-              Recupere seu nome e tenha fôlego{" "}
+              Dê um fim às{" "}
               <span className="relative inline-flex justify-center whitespace-nowrap bg-gradient-to-r from-blue-500 to-blue-200 bg-clip-text text-transparent">
-                financeiro
+                restrições
               </span>{" "}
-              em até 15 dias.
+              e recupere seu poder de escolha
             </h1>
             <div className="mx-auto max-w-3xl">
               <p
-                className="mb-8 text-lg text-gray-300"
+                className="mb-8 text-lg text-gray-700"
                 data-aos="zoom-y-out"
                 data-aos-delay={300}
               >
-                Saia da inadimplência e volte a ter crédito por menos de R$3,23/dia com um
-                método único que já transformou milhares de vidas.
+                Com o Clube Limpa Nome, você tem o suporte necessário para sair da negativação,
+                limpar seu nome e reconstruir sua liberdade financeira.
               </p>
             </div>
           </div>
@@ -102,15 +101,15 @@ export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
                 <span className="text-3xl font-mono font-bold text-[#00B5BF] mb-4 border-2 border-[#FF6A00] px-8 py-2 rounded">
                   {waiting ? "Aguarde 01:00" : formatTime(timer)}
                 </span>
-                <button
-                  onClick={onCTAClick}
+                <a
                   className="btn w-full flex items-center justify-center rounded-md bg-[#00B5BF] px-6 py-2 text-[#F4F4F4] font-semibold transition duration-300 hover:bg-[#FF6A00] hover:text-white max-w-xs"
+                  href="#oferta"
                 >
-                  Receber Oferta
+                  Adquirir Consórcio
                   <span className="ml-1 tracking-normal transition-transform group-hover:translate-x-0.5">
                     →
                   </span>
-                </button>
+                </a>
               </div>
             </div>
           </div>

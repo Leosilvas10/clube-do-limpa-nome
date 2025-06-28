@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { submitFormData, redirectToWhatsApp, type FormData } from "../utils/formService";
 
 export default function ExitIntentLeadForm() {
   const [showModal, setShowModal] = useState(false);
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,35 +74,48 @@ export default function ExitIntentLeadForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     const form = e.currentTarget;
-    const data = {
+    const formData: FormData = {
       NOME: (form.elements.namedItem("name") as HTMLInputElement).value,
       TELEFONE: phone,
       "E-MAIL": (form.elements.namedItem("email") as HTMLInputElement).value,
     };
 
-    const params = new URLSearchParams();
-    Object.entries(data).forEach(([key, value]) => params.append(key, value));
-
     try {
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbzu62ouQCWjAx-mTKm4StLhCQu6j_m2uGCAVOLn104Uy7TpbPIGssCEQ5i__TINZI9mSQ/exec",
-        {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params.toString(),
+      // Envia dados para webhook do Make.com com fallbacks
+      const result = await submitFormData(formData);
+
+      if (result.success) {
+        // Dispara o Pixel de Lead
+        if (typeof window !== "undefined" && window.fbq) {
+          window.fbq("track", "Lead");
         }
-      );
-      alert("Lead enviado com sucesso!");
-      form.reset();
-      setPhone("");
-      setShowModal(false);
+
+        setSuccess(true);
+        
+        // Limpa formulário e fecha modal
+        form.reset();
+        setPhone("");
+        
+        setTimeout(() => {
+          setShowModal(false);
+          redirectToWhatsApp();
+        }, 1800);
+      } else {
+        // Mesmo com falha, permite o redirecionamento mas mostra aviso
+        setError("Houve um problema ao enviar seus dados, mas entraremos em contato!");
+        setSuccess(true);
+        
+        setTimeout(() => {
+          setShowModal(false);
+          redirectToWhatsApp();
+        }, 2500);
+      }
     } catch (error) {
-      alert("Erro ao enviar lead.");
+      console.error("Erro no envio do formulário:", error);
+      setError("Erro ao enviar formulário. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -183,6 +199,16 @@ export default function ExitIntentLeadForm() {
               {loading ? "Enviando..." : "Registrar"}
             </button>
           </div>
+          {success && !error && (
+            <p className="mt-4 text-green-400 text-center text-base font-semibold">
+              Cadastro realizado com sucesso! Redirecionando para o WhatsApp...
+            </p>
+          )}
+          {error && (
+            <p className="mt-4 text-yellow-400 text-center text-sm">
+              {error}
+            </p>
+          )}
         </form>
       </div>
     </div>

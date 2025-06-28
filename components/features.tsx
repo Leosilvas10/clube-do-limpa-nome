@@ -3,7 +3,11 @@ import BlurredShapeGray from "@/public/images/blurred-shape-gray.svg";
 import BlurredShape from "@/public/images/blurred-shape.svg";
 import FeaturesImage from "@/public/images/features.png";
 
-export default function Features() {
+interface FeaturesProps {
+  onCTAClick?: () => void;
+}
+
+export default function Features({ onCTAClick }: FeaturesProps) {
   return (
     <section className="relative">
       <div
@@ -64,7 +68,7 @@ export default function Features() {
                 Parcelas que cabem no seu bolso
               </h3>
               <p className="text-indigo-200/65">
-                Pagando a partir de R$3,30 por dia, você pode dar o primeiro passo para sair do sufoco — sem comprometer seu orçamento.
+                Pagando menos de R$ 3,23 por dia, você pode dar o primeiro passo para sair do sufoco — sem comprometer seu orçamento.
               </p>
             </article>
 

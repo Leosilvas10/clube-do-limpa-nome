@@ -6,7 +6,11 @@ import Spotlight from "@/components/spotlight";
 import OpcoesDePlanosMao from "@/public/images/opcoes-de-planos-mao.png";
 import JusticaProcessoEtapas from "@/public/images/justica-processo-etapas.png";
 
-export default function Workflows() {
+interface WorkflowsProps {
+  onCTAClick?: () => void;
+}
+
+export default function Workflows({ onCTAClick }: WorkflowsProps) {
   return (
     <section>
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -47,7 +51,7 @@ export default function Workflows() {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Pague a partir de R$3,30 por dia e limpe seu nome sem comprometer suas finanças. Acessível, possível e com resultados reais.
+                    Pague menos de R$ 3,23 por dia e limpe seu nome sem comprometer suas finanças. Acessível, possível e com resultados reais.
                   </p>
                 </div>
               </div>
