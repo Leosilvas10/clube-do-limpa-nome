@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { getWhatsAppLink } from "@/utils/aiLinksManager";
 
+// Defina o tipo para os dados do formulário
+interface LeadFormData {
+  NOME: string;
+  TELEFONE: string;
+  "E-MAIL": string;
+}
+
 interface FormModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function FormModal({ isOpen, onClose }: FormModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LeadFormData>({
     NOME: "",
     TELEFONE: "",
     "E-MAIL": "",
@@ -18,7 +25,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Função para enviar os dados ao Google Apps Script
-  async function submitFormData(formData: typeof formData) {
+  async function submitFormData(formData: LeadFormData) {
     try {
       const url = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
       const data = new FormData();
