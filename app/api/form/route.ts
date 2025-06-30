@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Usa a URL do .env.local!
 const scriptURL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL as string;
+const makeWebhookURL = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL as string;
 
 export async function OPTIONS() {
   return NextResponse.json(
@@ -18,45 +18,77 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
-  // Recebe os dados enviados no body
   const { nome, email, whatsapp } = await req.json();
 
   if (!nome || !email || !whatsapp) {
     return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 });
   }
 
-  try {
-    // Monta o payload no formato esperado pelo Apps Script
-    const payload = {
-      NOME: nome,
-      TELEFONE: whatsapp,
-      "E-MAIL": email,
-      timestamp: new Date().toISOString(),
-      source: "website"
-    };
+  const payload = {
+    NOME: nome,
+    TELEFONE: whatsapp,
+    "E-MAIL": email,
+    timestamp: new Date().toISOString(),
+    source: "website"
+  };
 
-    // Envia o payload para o Apps Script
+  let googleSheetsOk = false;
+  let makeOk = false;
+  let googleError = '';
+  let makeError = '';
+
+  // 1. Envia para o Google Sheets
+  try {
     const googleRes = await fetch(scriptURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       redirect: 'follow'
     });
-
-    const resultText = await googleRes.text();
-    let resultData;
-    try {
-      resultData = JSON.parse(resultText);
-    } catch {
-      resultData = resultText;
+    if (googleRes.ok) {
+      googleSheetsOk = true;
+    } else {
+      googleError = await googleRes.text();
     }
-
-    if (!googleRes.ok) {
-      return NextResponse.json({ success: false, error: resultData }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, data: resultData });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    googleError = error.message || 'Erro Google Sheets';
   }
+
+  // 2. Envia para o Make.com Webhook
+  try {
+    const makeRes = await fetch(makeWebhookURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (makeRes.ok) {
+      makeOk = true;
+    } else {
+      makeError = await makeRes.text();
+    }
+  } catch (error: any) {
+    makeError = error.message || 'Erro Make.com';
+  }
+
+  // Resultado combinado:
+  if (googleSheetsOk || makeOk) {
+    // Sucesso em pelo menos um destino
+    return NextResponse.json({
+      success: true,
+      googleSheets: googleSheetsOk,
+      make: makeOk,
+      googleError,
+      makeError,
+    });
+  }
+
+  // Falha total
+  return NextResponse.json({
+    success: false,
+    googleSheets: false,
+    make: false,
+    googleError,
+    makeError,
+    error: "Falha em todos os destinos"
+  }, { status: 500 });
 }
