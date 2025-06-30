@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const scriptURL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL as string;
-const makeWebhookURL = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL as string;
+const scriptURL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
+const makeWebhookURL = process.env.NEXT_PUBLIC_MAKE_WEBHOOK_URL;
 
 export async function OPTIONS() {
   return NextResponse.json(
@@ -18,6 +18,15 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
+  // Verificação das URLs
+  if (!scriptURL || !makeWebhookURL) {
+    console.error('❌ Erro: Variáveis de ambiente não configuradas');
+    return NextResponse.json({
+      success: false,
+      error: 'Webhook URL ou Google Script URL não configurada no .env.local'
+    }, { status: 500 });
+  }
+
   const { nome, email, whatsapp } = await req.json();
 
   if (!nome || !email || !whatsapp) {
@@ -51,7 +60,7 @@ export async function POST(req: NextRequest) {
       googleError = await googleRes.text();
     }
   } catch (error: any) {
-    googleError = error.message || 'Erro Google Sheets';
+    googleError = error && error.toString ? error.toString() : 'Erro Google Sheets';
   }
 
   // 2. Envia para o Make.com Webhook
@@ -67,7 +76,7 @@ export async function POST(req: NextRequest) {
       makeError = await makeRes.text();
     }
   } catch (error: any) {
-    makeError = error.message || 'Erro Make.com';
+    makeError = error && error.toString ? error.toString() : 'Erro Make.com';
   }
 
   // Resultado combinado:
