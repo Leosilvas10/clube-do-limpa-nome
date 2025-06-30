@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { getWhatsAppLink } from "@/utils/aiLinksManager";
 
-// Defina o tipo para os dados do formulário
 interface LeadFormData {
-  NOME: string;
-  TELEFONE: string;
-  "E-MAIL": string;
+  nome: string;
+  whatsapp: string;
+  email: string;
 }
 
 interface FormModalProps {
@@ -17,34 +16,36 @@ interface FormModalProps {
 
 export default function FormModal({ isOpen, onClose }: FormModalProps) {
   const [formData, setFormData] = useState<LeadFormData>({
-    NOME: "",
-    TELEFONE: "",
-    "E-MAIL": "",
+    nome: "",
+    whatsapp: "",
+    email: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Função para enviar os dados ao Google Apps Script
-  async function submitFormData(formData: LeadFormData) {
+  // Função para enviar dados para o endpoint interno Next.js
+  async function submitFormData(data: LeadFormData) {
     try {
-      const url = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL;
-      const data = new FormData();
-      data.append("NOME", formData.NOME);
-      data.append("TELEFONE", formData.TELEFONE);
-      data.append("E-MAIL", formData["E-MAIL"]);
-      data.append("timestamp", new Date().toISOString());
-      data.append("source", "formmodal");
-
-      const response = await fetch(url as string, {
+      const response = await fetch("/api/form", {
         method: "POST",
-        body: data,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: data.nome,
+          email: data.email,
+          whatsapp: data.whatsapp,
+        }),
       });
 
       if (!response.ok) {
         return { success: false, error: await response.text() };
       }
 
-      return { success: true };
+      const result = await response.json();
+      if (result.success) {
+        return { success: true };
+      } else {
+        return { success: false, error: result.error || "Erro desconhecido" };
+      }
     } catch (error: any) {
       return { success: false, error: error.message || "Erro desconhecido" };
     }
@@ -53,8 +54,8 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Máscara para telefone
-    if (name === "TELEFONE") {
+    // Máscara para telefone/whatsapp
+    if (name === "whatsapp") {
       const phoneValue = value
         .replace(/\D/g, "")
         .replace(/(\d{2})(\d)/, "($1) $2")
@@ -77,9 +78,9 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
         setShowSuccess(true);
         // Abrir WhatsApp com os dados do lead
         const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
-        const nome = formData.NOME;
-        const telefone = formData.TELEFONE;
-        const email = formData["E-MAIL"];
+        const nome = formData.nome;
+        const telefone = formData.whatsapp;
+        const email = formData.email;
         const msg = `Olá! Meu nome é ${nome}, meu WhatsApp é ${telefone} e meu e-mail é ${email}. Quero receber minha oferta exclusiva!`;
         const link = getWhatsAppLink() || `https://wa.me/${whatsappNumber.replace(/[^\d]/g, "")}`;
         const url = `${link}?text=${encodeURIComponent(msg)}`;
@@ -89,8 +90,8 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
         setTimeout(() => {
           onClose();
           setShowSuccess(false);
-          setFormData({ NOME: "", TELEFONE: "", "E-MAIL": "" });
-        }, 4000); // 4 segundos para ler a mensagem
+          setFormData({ nome: "", whatsapp: "", email: "" });
+        }, 4000);
       } else {
         console.error("Erro ao enviar formulário:", result.error);
         alert("Erro ao enviar formulário. Tente novamente.");
@@ -104,10 +105,8 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
   };
 
   if (!isOpen) {
-    console.log('FormModal: não está aberto');
     return null;
   }
-  console.log('FormModal: modal aberto!');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
@@ -143,8 +142,8 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                   <input
                     type="text"
                     id="nome"
-                    name="NOME"
-                    value={formData.NOME}
+                    name="nome"
+                    value={formData.nome}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
@@ -153,14 +152,14 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                 </div>
 
                 <div>
-                  <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">
                     WhatsApp *
                   </label>
                   <input
                     type="tel"
-                    id="telefone"
-                    name="TELEFONE"
-                    value={formData.TELEFONE}
+                    id="whatsapp"
+                    name="whatsapp"
+                    value={formData.whatsapp}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
@@ -175,8 +174,8 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                   <input
                     type="email"
                     id="email"
-                    name="E-MAIL"
-                    value={formData["E-MAIL"]}
+                    name="email"
+                    value={formData.email}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
