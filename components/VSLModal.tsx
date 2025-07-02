@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// Declaração global movida para global.d.ts para evitar erro de JSX/TS
+
 interface VSLModalProps {
   isOpen: boolean;
   onVideoEnd: () => void;
@@ -10,67 +12,128 @@ interface VSLModalProps {
 
 export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const vturbRef = useRef<any>(null);
+  const vturbContainerRef = useRef<HTMLDivElement>(null);
   const [videoEnded, setVideoEnded] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [fiftyPercentTracked, setFiftyPercentTracked] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
-    if (isOpen && videoRef.current) {
-      // Força o vídeo a tocar quando o modal abre
-      const playVideo = async () => {
-        try {
-          await videoRef.current!.play();
-          console.log('Vídeo iniciado com sucesso');
-        } catch (error) {
-          console.error('Erro ao iniciar vídeo:', error);
+    // Sempre que abrir o modal, garantir que o player VTurb começa do início
+    if (isOpen) {
+      // Limpa localStorage do VTurb para evitar continuar de onde parou
+      try {
+        Object.keys(localStorage)
+          .filter(k => k.includes('vturb') || k.includes('vsl') || k.includes('converteai'))
+          .forEach(k => localStorage.removeItem(k));
+      } catch (e) { /* ignore */ }
+      // Remove o player antigo e cria um novo após a limpeza
+      setTimeout(() => {
+        if (vturbContainerRef.current) {
+          // Remove player antigo
+          while (vturbContainerRef.current.firstChild) {
+            vturbContainerRef.current.removeChild(vturbContainerRef.current.firstChild);
+          }
+          // Cria novo player
+          const player = document.createElement('vturb-smartplayer');
+          player.id = 'vid-686465f756e58ef04d99705b';
+          player.style.display = 'block';
+          player.style.margin = '0 auto';
+          player.style.width = '100%';
+          player.setAttribute('data-start-at', '0');
+          vturbContainerRef.current.appendChild(player);
+          vturbRef.current = player;
+          // Remove script antigo se existir
+          const oldScript = document.getElementById('vturb-script');
+          if (oldScript) oldScript.remove();
+          // Adiciona script do player
+          const script = document.createElement('script');
+          script.src = 'https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/686465f756e58ef04d99705b/v4/player.js';
+          script.async = true;
+          script.id = 'vturb-script';
+          document.head.appendChild(script);
+          
+          // Monitora o player VTurb após carregamento
+          const checkVTurbPlayer = () => {
+            const vturbPlayer = document.getElementById('vid-686465f756e58ef04d99705b');
+            if (vturbPlayer) {
+              console.log('Player VTurb encontrado!');
+              
+              // Encontra o elemento de vídeo dentro do player VTurb
+              const findVideoElement = () => {
+                // Procura em diferentes possíveis localizações
+                let videoElement = vturbPlayer.querySelector('video');
+                
+                // Se não encontrou, tenta no shadow DOM
+                if (!videoElement && vturbPlayer.shadowRoot) {
+                  videoElement = vturbPlayer.shadowRoot.querySelector('video');
+                }
+                
+                // Se ainda não encontrou, procura em iframes
+                if (!videoElement) {
+                  const iframe = vturbPlayer.querySelector('iframe');
+                  if (iframe && iframe.contentDocument) {
+                    videoElement = iframe.contentDocument.querySelector('video');
+                  }
+                }
+                
+                return videoElement;
+              };
+              
+              const videoElement = findVideoElement();
+              if (videoElement) {
+                videoRef.current = videoElement;
+                
+                console.log('Elemento de vídeo encontrado:', videoElement);
+                
+                // Adiciona event listeners para monitorar progresso
+                videoElement.addEventListener('timeupdate', handleTimeUpdate);
+                videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+                videoElement.addEventListener('ended', handleVideoEnd);
+                
+                console.log('Player VTurb conectado com sucesso!');
+              } else {
+                console.log('Elemento de vídeo não encontrado, tentando novamente...');
+                // Tenta novamente após 500ms se não encontrou o vídeo
+                setTimeout(checkVTurbPlayer, 500);
+              }
+            } else {
+              console.log('Player VTurb não encontrado, tentando novamente...');
+              // Tenta novamente após 500ms se não encontrou o player
+              setTimeout(checkVTurbPlayer, 500);
+            }
+          };
+          
+          // Inicia a verificação após o script carregar
+          setTimeout(checkVTurbPlayer, 1000);
         }
-      };
+      }, 200);
+    }
+    
+    // Dispara pixel do Facebook quando VSL inicia
+    if (isOpen && typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "ViewContent", {
+        content_name: "VSL - Clube Limpa Nome",
+        content_category: "Video"
+      });
       
-      playVideo();
-      
-      // REMOVIDO: Tentativa automática de fullscreen que causava erro
-      // Fullscreen só funciona com interação do usuário
-      
-      // Dispara pixel do Facebook quando VSL inicia
-      if (typeof window !== "undefined" && window.fbq) {
-        window.fbq("track", "ViewContent", {
-          content_name: "VSL - Clube Limpa Nome",
-          content_category: "Video"
-        });
-        
-        // Pixel adicional para início de visualização
-        window.fbq("track", "InitiateCheckout", {
-          content_name: "VSL Started"
-        });
-      }
+      // Pixel adicional para início de visualização
+      window.fbq("track", "InitiateCheckout", {
+        content_name: "VSL Started"
+      });
     }
   }, [isOpen]);
 
   const handleVideoEnd = () => {
     setVideoEnded(true);
     onVideoEnd();
-    
-    // Dispara pixel de conversão quando vídeo termina
-    if (typeof window !== "undefined" && window.fbq) {
-      window.fbq("track", "Lead", {
-        content_name: "VSL Completed"
-      });
-      
-      // Pixel de conversão principal
-      window.fbq("track", "CompleteRegistration", {
-        content_name: "Ready to Convert"
-      });
-    }
+    // Removido disparo do evento de Lead e CompleteRegistration do término do vídeo
+    // O evento de Lead será disparado apenas após o envio do formulário
   };
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const current = videoRef.current.currentTime;
       const total = videoRef.current.duration;
-      
-      setCurrentTime(current);
       
       // Dispara pixel quando usuário assiste 50% do vídeo
       if (!fiftyPercentTracked && total > 0 && current / total >= 0.5) {
@@ -88,22 +151,13 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
   };
 
   const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      setDuration(videoRef.current.duration);
-    }
+    // Função mantida para compatibilidade mas sem ação
   };
 
-  // Bloqueia tentativas de pular o vídeo
+  // Bloqueia tentativas de pular o vídeo - simplificado
   const handleSeeking = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     if (!videoEnded) {
       e.preventDefault();
-      if (videoRef.current) {
-        // Em vez de forçar voltar, permite avançar mas não retroceder
-        const target = e.currentTarget;
-        if (target.currentTime < currentTime) {
-          target.currentTime = currentTime;
-        }
-      }
     }
   };
 
@@ -125,28 +179,15 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
   };
 
   const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds) || seconds < 0) {
+      return "0:00";
+    }
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      video.muted = !video.muted;
-      setIsMuted(video.muted);
-      
-      // Se ativar som, garantir que vídeo continue reproduzindo
-      if (!video.muted) {
-        if (video.paused) {
-          video.play().catch(console.error);
-        }
-        console.log('Som ativado com sucesso!');
-      } else {
-        console.log('Som desativado');
-      }
-    }
-  };
+
 
   // Função para entrar em fullscreen (apenas se solicitado pelo usuário)
   const enterFullscreen = () => {
@@ -184,179 +225,54 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           </p>
         </div>
 
-        {/* Container do vídeo */}
+        {/* Container do vídeo substituído pelo player VTurb */}
         <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl flex-1 max-h-[70vh]">
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            autoPlay
-            playsInline
-            muted={isMuted}
-            onEnded={handleVideoEnd}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onSeeking={handleSeeking}
-            onPause={handlePause}
-            onContextMenu={handleContextMenu}
-            controlsList="nodownload nofullscreen noremoteplayback"
-            disablePictureInPicture
-            poster="/images/homem-preocupado.png"
-            style={{
-              WebkitAppearance: 'none',
-            }}
-          >
-            <source src="/videos/vsl-clube-v2.mp4" type="video/mp4" />
-            Seu navegador não suporta o vídeo.
-          </video>
-
-          {/* Controles customizados */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 z-30">
-            <div className="flex items-center justify-between text-white">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full">
-                  {videoEnded ? "✓" : "▶️"}
-                </div>
-                <span className="text-sm">
-                  {videoEnded ? "Vídeo concluído!" : "Reproduzindo..."}
-                </span>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="text-sm">
-                  {formatTime(currentTime)} / {formatTime(duration)}
-                </div>
-              </div>
-            </div>
-            
-            {/* Barra de progresso */}
-            <div className="w-full bg-white/20 rounded-full h-2 mt-3">
-              <div 
-                className="bg-[#00B5BF] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Botão de som FIXO - posicionamento absoluto independente */}
-          <div className="absolute top-4 right-4 z-50">
-            <button
-              onClick={toggleMute}
-              className="w-20 h-20 flex items-center justify-center bg-[#00B5BF] hover:bg-[#FF6A00] rounded-full transition-all duration-200 shadow-2xl border-4 border-white"
-              title={isMuted ? "🔊 CLIQUE AQUI PARA ATIVAR O SOM" : "🔇 Desativar som"}  
-              type="button"
-              data-mute-button
-              style={{ 
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                zIndex: 99999,
-                pointerEvents: 'all'
-              }}
-            >
-              <span className="text-3xl">{isMuted ? "🔇" : "🔊"}</span>
-            </button>
-          </div>
-
-          {/* Overlay que previne cliques no vídeo (mas não no botão de som) */}
-          <div 
-            className="absolute inset-0 bg-transparent z-10"
-            onClick={(e) => {
-              // Previne cliques apenas se não for no botão de som
-              const target = e.target as HTMLElement;
-              if (!target.closest('[data-mute-button]')) {
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
-            style={{ 
-              pointerEvents: 'auto',
-              // Cria um "buraco" visual para o botão de som
-              clipPath: 'polygon(0% 0%, 0% 100%, calc(100% - 120px) 100%, calc(100% - 120px) 0%, calc(100% - 120px) 120px, 100% 120px, 100% 0%)'
-            }}
+          <div
+            id="vsl-vturb-container"
+            style={{ width: "100%", minHeight: 360 }}
+            ref={vturbContainerRef}
           />
         </div>
 
-        {/* Instruções - posicionamento fixo no topo */}
-        <div className="absolute top-20 left-0 right-0 z-40 px-4">
-          {isMuted && !videoEnded && (
-            <div className="mx-auto max-w-2xl text-center">
-              <div className="text-yellow-300 text-lg mb-3 flex items-center justify-center space-x-2 bg-red-900/80 p-4 rounded-lg animate-pulse border-2 border-red-500/50 backdrop-blur-sm">
-                <span className="text-3xl animate-bounce">🔇</span>
-                <span className="font-bold text-xl">CLIQUE NO BOTÃO AZUL NO CANTO SUPERIOR DIREITO PARA ATIVAR O SOM</span>
-                <span className="text-3xl animate-bounce">👆</span>
-              </div>
-            </div>
-          )}
-          {!isMuted && !videoEnded && (
-            <div className="mx-auto max-w-lg text-center">
-              <div className="text-green-400 text-lg mb-2 bg-green-900/80 p-3 rounded-lg backdrop-blur-sm">
-                ✅ Som ativado! Continue assistindo...
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Instruções principais */}
-        <div className="mt-4 text-center relative z-20">
-          {videoEnded && (
-            <div className="text-green-400 text-lg bg-green-900/20 p-3 rounded-lg">
-              ✅ Vídeo concluído! Agora você pode prosseguir.
-            </div>
-          )}
-        </div>
 
-        {/* Botão para fechar (só aparece após vídeo terminar) */}
+
+
+      </div>
+
+
+
+      {/* Instruções principais */}
+      <div className="mt-4 text-center relative z-20">
         {videoEnded && (
-          <div className="mt-6 text-center relative z-20 space-y-4">
-            {/* CTA principal para abrir formulário */}
-            <button
-              onClick={() => onOpenForm && onOpenForm()}
-              className="bg-[#FF6A00] hover:bg-[#00B5BF] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-lg shadow-xl"
-            >
-              🎯 QUERO MINHA OFERTA AGORA!
-            </button>
-            
-            {/* Botão secundário para continuar sem formulário */}
-            <div>
-              <button
-                onClick={onVideoEnd}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 text-sm"
-              >
-                Continuar navegando →
-              </button>
-            </div>
+          <div className="text-green-400 text-lg bg-green-900/20 p-3 rounded-lg">
+            ✅ Vídeo concluído! Agora você pode prosseguir.
           </div>
         )}
       </div>
 
-      {/* CSS adicional para bloquear controles */}
-      <style jsx>{`
-        video::-webkit-media-controls {
-          display: none !important;
-        }
-        video::-webkit-media-controls-panel {
-          display: none !important;
-        }
-        video::-webkit-media-controls-play-button {
-          display: none !important;
-        }
-        video::-webkit-media-controls-start-playback-button {
-          display: none !important;
-        }
-        video::-moz-media-controls {
-          display: none !important;
-        }
-        video::-ms-media-controls {
-          display: none !important;
-        }
-        
-        /* Garante que o botão de som seja sempre clicável */
-        [data-mute-button] {
-          pointer-events: all !important;
-          position: relative !important;
-          z-index: 99999 !important;
-        }
-      `}</style>
+      {/* Botão para fechar (só aparece após vídeo terminar) */}
+      {videoEnded && (
+        <div className="mt-6 text-center relative z-20 space-y-4">
+          {/* CTA principal para abrir formulário */}
+          <button
+            onClick={() => onOpenForm && onOpenForm()}
+            className="bg-[#FF6A00] hover:bg-[#00B5BF] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-lg shadow-xl"
+          >
+            🎯 QUERO MINHA OFERTA AGORA!
+          </button>
+          
+          {/* Botão secundário para continuar sem formulário */}
+          <div>
+            <button
+              onClick={onVideoEnd}
+              className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 text-sm"
+            >
+              Continuar navegando →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

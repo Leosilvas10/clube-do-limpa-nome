@@ -76,6 +76,17 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
 
       if (result.success) {
         setShowSuccess(true);
+        
+        // Dispara pixel de Lead do Facebook
+        if (typeof window !== "undefined" && window.fbq) {
+          window.fbq("track", "Lead", {
+            content_name: "Form Submitted - Clube Limpa Nome",
+            value: 97,
+            currency: "BRL"
+          });
+          console.log("Pixel de Lead disparado com sucesso!");
+        }
+        
         // Abrir WhatsApp com os dados do lead
         const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
         const nome = formData.nome;

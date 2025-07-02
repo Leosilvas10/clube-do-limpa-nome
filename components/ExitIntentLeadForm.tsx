@@ -18,10 +18,15 @@ export default function ExitIntentLeadForm() {
     let hasInteracted = false;
     let exitIntentListener: ((e: MouseEvent) => void) | null = null;
 
+    // Só ativa o exit intent se o mouse for para o canto superior direito (região do botão de fechar)
     const activateExitIntent = () => {
       if (exitIntentListener) return;
       exitIntentListener = (e: MouseEvent) => {
-        if (e.clientY <= 60) {
+        const thresholdTop = 80; // px do topo
+        const thresholdRight = 120; // px da direita
+        const { clientY, clientX } = e;
+        const windowWidth = window.innerWidth;
+        if (clientY <= thresholdTop && clientX >= windowWidth - thresholdRight) {
           setShowModal(true);
           localStorage.setItem("exitIntentLeadShown", "true");
           window.removeEventListener("mousemove", exitIntentListener!);

@@ -44,6 +44,7 @@ export default function Home() {
     setShowVSL(false);
     setVslCompleted(true);
     localStorage.setItem('vsl_completed', 'true');
+    setShowFormModal(true); // Abre o modal automaticamente ao finalizar a VSL
   };
   
   const handleVSLFormOpen = () => {
