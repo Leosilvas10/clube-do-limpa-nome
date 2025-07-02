@@ -16,17 +16,8 @@ export default function Home() {
   const [vslCompleted, setVslCompleted] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
-  // Debug: Log mudanças de estado
+  // Removeu logs de debug e botões de forçar VSL
   useEffect(() => {
-    console.log('🔍 DEBUG - showVSL mudou para:', showVSL);
-  }, [showVSL]);
-
-  useEffect(() => {
-    console.log('🔍 DEBUG - vslCompleted mudou para:', vslCompleted);
-  }, [vslCompleted]);
-
-  useEffect(() => {
-    // Remove o forçar modal aberto
     // Escuta evento global para abrir o modal de qualquer lugar
     const openModal = () => setShowFormModal(true);
     window.addEventListener("open-lead-modal", openModal);
@@ -34,20 +25,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // 🚨 CORREÇÃO URGENTE: FORÇA VSL A ABRIR SEMPRE APÓS 2 SEGUNDOS
-    console.log('🚀 INICIANDO TIMER DE 2 SEGUNDOS PARA VSL...');
-    
-    // LIMPA QUALQUER LOCALSTORAGE QUE POSSA ESTAR BLOQUEANDO
+    // Força VSL abrir após 2 segundos
     localStorage.removeItem('vsl_completed');
     localStorage.removeItem('vsl_viewed');
-    
-    // FORÇA ABERTURA DA VSL APÓS 2 SEGUNDOS - SEM VERIFICAÇÕES
     const timer = setTimeout(() => {
-      console.log('🚀 ABRINDO VSL AGORA - FORÇADO!');
       setShowVSL(true);
       setVslCompleted(false);
     }, 2000);
-    
     return () => clearTimeout(timer);
   }, []);
 
@@ -59,7 +43,6 @@ export default function Home() {
   };
   
   const handleVSLFormOpen = () => {
-    // Abre o formulário diretamente do VSL
     setShowFormModal(true);
   };
 
@@ -67,34 +50,8 @@ export default function Home() {
     setShowFormModal(true);
   };
 
-  // Debug: Função para forçar abertura da VSL
-  const forceOpenVSL = () => {
-    console.log('🔧 DEBUG - Forçando abertura da VSL...');
-    localStorage.removeItem('vsl_completed');
-    setShowVSL(true);
-    setVslCompleted(false);
-  };
-
   return (
     <>
-      {/* DEBUG: Botão para forçar VSL */}
-      <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
-        <button 
-          onClick={forceOpenVSL}
-          style={{ 
-            background: 'red', 
-            color: 'white', 
-            padding: '10px', 
-            border: 'none', 
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          🚨 FORÇAR VSL
-        </button>
-      </div>
-
       {/* VSL Modal */}
       <VSLModal 
         isOpen={showVSL} 
