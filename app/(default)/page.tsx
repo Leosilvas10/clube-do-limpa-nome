@@ -16,11 +16,6 @@ export default function Home() {
   const [vslCompleted, setVslCompleted] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
-  // Debug: Monitor showFormModal changes
-  useEffect(() => {
-    console.log('🔍 ESTADO FormModal mudou para:', showFormModal);
-  }, [showFormModal]);
-
   useEffect(() => {
     // Remove o forçar modal aberto
     // Escuta evento global para abrir o modal de qualquer lugar
@@ -43,20 +38,15 @@ export default function Home() {
   }, []);
 
   const handleVSLEnd = () => {
-    console.log('🏠 PAGE: handleVSLEnd chamado!');
     setShowVSL(false);
     setVslCompleted(true);
     localStorage.setItem('vsl_completed', 'true');
-    console.log('🎯 PAGE: Abrindo FormModal...');
     setShowFormModal(true); // Abre o modal automaticamente ao finalizar a VSL
-    console.log('✅ PAGE: FormModal definido como true, showFormModal:', true);
   };
   
   const handleVSLFormOpen = () => {
-    console.log('🎯 PAGE: handleVSLFormOpen chamado diretamente!');
     // Abre o formulário diretamente do VSL
     setShowFormModal(true);
-    console.log('✅ PAGE: FormModal aberto diretamente');
   };
 
   const handleCTAClick = () => {

@@ -78,31 +78,50 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           
           // Monitora o player VTurb após carregamento e adiciona eventos
           const checkVTurbPlayer = () => {
-            console.log('🔍 Verificando player VTurb...');
             const vturbPlayer = document.getElementById('vid-686465f756e58ef04d99705b');
             if (vturbPlayer) {
-              console.log('✅ Player VTurb encontrado:', vturbPlayer);
-              
               // Configurar eventos do VTurb - Múltiplas abordagens
               try {
                 setTimeout(() => {
-                  console.log('🔧 Configurando eventos VTurb...');
+                  // Método NOVO: Observer para mudanças no DOM do player
+                  const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                      // Verifica se apareceu algum elemento que indica fim do vídeo
+                      mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === 1) { // Element node
+                          const element = node as Element;
+                          // Procura por elementos que indicam fim do vídeo no VTurb
+                          if (element.textContent?.includes('QUERO') || 
+                              element.textContent?.includes('OFERTA') ||
+                              element.textContent?.includes('COMPRAR') ||
+                              element.className?.includes('ended') ||
+                              element.className?.includes('finished')) {
+                            handleVideoEnd();
+                          }
+                        }
+                      });
+                    });
+                  });
+                  
+                  // Observa mudanças no player VTurb
+                  observer.observe(vturbPlayer, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class', 'style', 'data-ended', 'data-finished']
+                  });
                   
                   // Método 1: API do SmartPlayer
                   if (window.SmartPlayer && window.SmartPlayer.instances) {
                     const instance = window.SmartPlayer.instances['vid-686465f756e58ef04d99705b'];
                     if (instance) {
-                      console.log('📡 SmartPlayer API encontrada');
                       instance.on('ended', () => {
-                        console.log('🎬 VTurb API: Vídeo terminou!');
                         handleVideoEnd();
                       });
                       
                       instance.on('progress', (data: any) => {
-                        console.log('📊 VTurb progress:', data);
                         if (data && data.percent >= 50 && !fiftyPercentTracked) {
                           setFiftyPercentTracked(true);
-                          console.log('📊 VTurb API: 50% do vídeo assistido');
                           
                           if (typeof window !== "undefined" && window.fbq) {
                             window.fbq("track", "AddToCart", {
@@ -113,76 +132,104 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
                           }
                         }
                       });
-                      
-                      console.log('✅ Eventos VTurb API configurados');
-                    } else {
-                      console.log('❌ Instância SmartPlayer não encontrada');
                     }
-                  } else {
-                    console.log('❌ SmartPlayer API não disponível');
                   }
                   
                   // Método 2: Eventos DOM personalizados do VTurb
-                  vturbPlayer.addEventListener('smartplayer:ended', (event) => {
-                    console.log('🎬 VTurb DOM: Vídeo terminou!', event);
-                    handleVideoEnd();
+                  ['smartplayer:ended', 'smartplayer:complete', 'vturb:ended', 'vturb:complete', 'video:ended'].forEach(eventName => {
+                    vturbPlayer.addEventListener(eventName, (event) => {
+                      handleVideoEnd();
+                    });
                   });
                   
-                  vturbPlayer.addEventListener('smartplayer:timeupdate', (event: any) => {
-                    console.log('⏰ VTurb timeupdate:', event.detail);
-                    if (event.detail && event.detail.percent >= 50 && !fiftyPercentTracked) {
-                      setFiftyPercentTracked(true);
-                      console.log('📊 VTurb DOM: 50% do vídeo assistido');
-                    }
-                  });
-                  
-                  // Método 3: Listener global para eventos VTurb
+                  // Método 3: Listener global para eventos VTurb via PostMessage
                   const handleVTurbMessage = (event: MessageEvent) => {
-                    console.log('📬 VTurb Message recebida:', event.data);
                     if (event.data && typeof event.data === 'object') {
-                      if (event.data.type === 'smartplayer:ended' || event.data.event === 'ended') {
-                        console.log('🎬 VTurb Message: Vídeo terminou!');
+                      const data = event.data;
+                      if (data.type === 'smartplayer:ended' || 
+                          data.event === 'ended' || 
+                          data.type === 'vturb:ended' ||
+                          data.type === 'video:ended' ||
+                          data.action === 'ended' ||
+                          (data.type === 'smartplayer:progress' && data.percent >= 99)) {
                         handleVideoEnd();
                       }
                       
-                      if (event.data.type === 'smartplayer:progress' && event.data.percent >= 50 && !fiftyPercentTracked) {
+                      if ((data.type === 'smartplayer:progress' || data.type === 'vturb:progress') && 
+                          data.percent >= 50 && !fiftyPercentTracked) {
                         setFiftyPercentTracked(true);
-                        console.log('📊 VTurb Message: 50% do vídeo assistido');
                       }
                     }
                   };
                   
                   window.addEventListener('message', handleVTurbMessage);
-                  console.log('✅ Listener de mensagens VTurb configurado');
                   
-                  // Método 4: Verificação periódica como fallback
+                  // Método 4: Polling inteligente - verifica iframe
                   let checkCount = 0;
                   const intervalCheck = setInterval(() => {
                     checkCount++;
-                    console.log(`🔄 Check #${checkCount} - Verificando estado do player...`);
                     
-                    // Verifica se passou tempo suficiente (assumindo vídeo de ~10 minutos)
-                    if (checkCount > 60) { // 60 * 10s = 10 minutos
-                      console.log('⏰ Timeout: Assumindo que vídeo terminou');
-                      clearInterval(intervalCheck);
-                      handleVideoEnd();
+                    try {
+                      // Verifica o iframe interno do VTurb
+                      const iframe = vturbPlayer.querySelector('iframe');
+                      if (iframe) {
+                        // Tenta verificar se há botões de CTA no iframe (indica fim do vídeo)
+                        try {
+                          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                          if (iframeDoc) {
+                            const buttons = iframeDoc.querySelectorAll('button, .button, [role="button"]');
+                            const ctaTexts = ['comprar', 'quero', 'oferta', 'sim', 'aceito', 'continuar'];
+                            
+                            buttons.forEach(btn => {
+                              const text = btn.textContent?.toLowerCase() || '';
+                              if (ctaTexts.some(cta => text.includes(cta))) {
+                                clearInterval(intervalCheck);
+                                handleVideoEnd();
+                              }
+                            });
+                          }
+                        } catch (e) {
+                          // Cross-origin restriction, normal
+                        }
+                      }
+                      
+                      // Se passou muito tempo (assumindo vídeo de ~8 minutos)
+                      if (checkCount > 50) { // 50 * 10s = ~8 minutos
+                        clearInterval(intervalCheck);
+                        handleVideoEnd();
+                      }
+                      
+                    } catch (e) {
+                      // Ignore errors
                     }
                   }, 10000); // Verifica a cada 10 segundos
+                  
+                  // Método 5: Escuta clicks no player (usuário clicando em CTA)
+                  vturbPlayer.addEventListener('click', (event) => {
+                    const target = event.target as Element;
+                    if (target) {
+                      const text = target.textContent?.toLowerCase() || '';
+                      const ctaTexts = ['comprar', 'quero', 'oferta', 'sim', 'aceito', 'continuar'];
+                      if (ctaTexts.some(cta => text.includes(cta))) {
+                        handleVideoEnd();
+                      }
+                    }
+                  });
                   
                   // Cleanup function para remover listeners
                   return () => {
                     window.removeEventListener('message', handleVTurbMessage);
                     clearInterval(intervalCheck);
+                    observer.disconnect();
                   };
                   
                 }, 3000); // Aguarda 3 segundos para o player carregar completamente
                 
               } catch (error) {
-                console.error('❌ Erro ao configurar eventos VTurb:', error);
+                // Silently handle errors in production
               }
               
             } else {
-              console.log('❌ Player VTurb não encontrado, tentando novamente...');
               // Tentar novamente se o player não carregou ainda
               setTimeout(checkVTurbPlayer, 1000);
             }
@@ -209,11 +256,8 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
   }, [isOpen]);
 
   const handleVideoEnd = () => {
-    console.log('🎬 EVENTO: handleVideoEnd chamado!');
     setVideoEnded(true);
-    console.log('📞 Chamando onVideoEnd...');
     onVideoEnd();
-    console.log('✅ onVideoEnd executado - FormModal deveria abrir agora!');
     // Removido disparo do evento de Lead e CompleteRegistration do término do vídeo
     // O evento de Lead será disparado apenas após o envio do formulário
   };
@@ -338,29 +382,6 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
               ✅ Vídeo concluído! Agora você pode prosseguir.
             </div>
           )}
-          
-          {/* Botões de teste temporários */}
-          <div className="mt-4 space-y-2">
-            <button
-              onClick={() => {
-                console.log('🧪 TESTE: Simulando fim do vídeo e abrindo popup');
-                handleVideoEnd();
-              }}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm py-2 px-4 rounded transition-all mx-2"
-            >
-              🧪 TESTAR: Simular Fim do Vídeo
-            </button>
-            
-            <button
-              onClick={() => {
-                console.log('🧪 TESTE: Forçando abertura do popup diretamente');
-                onOpenForm && onOpenForm();
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded transition-all mx-2"
-            >
-              🧪 TESTAR: Forçar Popup
-            </button>
-          </div>
         </div>
 
       {/* Botão para fechar (só aparece após vídeo terminar) */}

@@ -15,8 +15,6 @@ interface FormModalProps {
 }
 
 export default function FormModal({ isOpen, onClose }: FormModalProps) {
-  console.log('🎯 FormModal renderizado - isOpen:', isOpen);
-  
   const [formData, setFormData] = useState<LeadFormData>({
     nome: "",
     whatsapp: "",
@@ -86,7 +84,6 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
             value: 97,
             currency: "BRL"
           });
-          console.log("Pixel de Lead disparado com sucesso!");
         }
         
         // Abrir WhatsApp com os dados do lead
