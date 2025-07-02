@@ -15,6 +15,8 @@ interface FormModalProps {
 }
 
 export default function FormModal({ isOpen, onClose }: FormModalProps) {
+  console.log('🎯 FormModal renderizado - isOpen:', isOpen);
+  
   const [formData, setFormData] = useState<LeadFormData>({
     nome: "",
     whatsapp: "",
