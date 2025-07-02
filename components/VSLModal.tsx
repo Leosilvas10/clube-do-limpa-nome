@@ -26,14 +26,16 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           .filter(k => k.includes('vturb') || k.includes('vsl') || k.includes('converteai'))
           .forEach(k => localStorage.removeItem(k));
       } catch (e) { /* ignore */ }
-      // Remove o player antigo e cria um novo após a limpeza
+      
+      // Remove o player antigo e cria um novo iframe embed
       setTimeout(() => {
         if (vturbContainerRef.current) {
           // Remove player antigo
           while (vturbContainerRef.current.firstChild) {
             vturbContainerRef.current.removeChild(vturbContainerRef.current.firstChild);
           }
-          // Cria novo player
+          
+          // Cria novo player VTurb (método correto)
           const player = document.createElement('vturb-smartplayer');
           player.id = 'vid-686465f756e58ef04d99705b';
           player.style.display = 'block';
@@ -42,9 +44,11 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           player.setAttribute('data-start-at', '0');
           vturbContainerRef.current.appendChild(player);
           vturbRef.current = player;
+          
           // Remove script antigo se existir
           const oldScript = document.getElementById('vturb-script');
           if (oldScript) oldScript.remove();
+          
           // Adiciona script do player
           const script = document.createElement('script');
           script.src = 'https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/686465f756e58ef04d99705b/v4/player.js';
@@ -52,58 +56,20 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           script.id = 'vturb-script';
           document.head.appendChild(script);
           
+          console.log('✅ Player VTurb criado com sucesso!');
+          
           // Monitora o player VTurb após carregamento
           const checkVTurbPlayer = () => {
             const vturbPlayer = document.getElementById('vid-686465f756e58ef04d99705b');
             if (vturbPlayer) {
-              console.log('Player VTurb encontrado!');
-              
-              // Encontra o elemento de vídeo dentro do player VTurb
-              const findVideoElement = () => {
-                // Procura em diferentes possíveis localizações
-                let videoElement = vturbPlayer.querySelector('video');
-                
-                // Se não encontrou, tenta no shadow DOM
-                if (!videoElement && vturbPlayer.shadowRoot) {
-                  videoElement = vturbPlayer.shadowRoot.querySelector('video');
-                }
-                
-                // Se ainda não encontrou, procura em iframes
-                if (!videoElement) {
-                  const iframe = vturbPlayer.querySelector('iframe');
-                  if (iframe && iframe.contentDocument) {
-                    videoElement = iframe.contentDocument.querySelector('video');
-                  }
-                }
-                
-                return videoElement;
-              };
-              
-              const videoElement = findVideoElement();
-              if (videoElement) {
-                videoRef.current = videoElement;
-                
-                console.log('Elemento de vídeo encontrado:', videoElement);
-                
-                // Adiciona event listeners para monitorar progresso
-                videoElement.addEventListener('timeupdate', handleTimeUpdate);
-                videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
-                videoElement.addEventListener('ended', handleVideoEnd);
-                
-                console.log('Player VTurb conectado com sucesso!');
-              } else {
-                console.log('Elemento de vídeo não encontrado, tentando novamente...');
-                // Tenta novamente após 500ms se não encontrou o vídeo
-                setTimeout(checkVTurbPlayer, 500);
-              }
+              // Player carregado, não precisa fazer mais nada
+              // O VTurb gerencia seus próprios eventos internamente
             } else {
-              console.log('Player VTurb não encontrado, tentando novamente...');
-              // Tenta novamente após 500ms se não encontrou o player
               setTimeout(checkVTurbPlayer, 500);
             }
           };
           
-          // Inicia a verificação após o script carregar
+          // Inicia verificação após script carregar
           setTimeout(checkVTurbPlayer, 1000);
         }
       }, 200);
@@ -214,6 +180,26 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
       data-vsl-modal
     >
+      {/* Estilo para funcionalidade de delay da Vturb */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .esconder { 
+            display: none; 
+          }
+          .vturb-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .vturb-container iframe {
+            border: none !important;
+            border-radius: 8px;
+          }
+        `
+      }} />
       <div className="relative w-full max-w-6xl mx-4 h-full flex flex-col justify-center">
         {/* Header do modal */}
         <div className="mb-4 text-center relative z-20">
@@ -225,11 +211,12 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           </p>
         </div>
 
-        {/* Container do vídeo substituído pelo player VTurb */}
-        <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl flex-1 max-h-[70vh]">
+        {/* Container do vídeo com iframe embed da Vturb */}
+        <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl flex-1 max-h-[70vh] vturb-container">
           <div
             id="vsl-vturb-container"
-            style={{ width: "100%", minHeight: 360 }}
+            className="w-full h-full"
+            style={{ minHeight: 400 }}
             ref={vturbContainerRef}
           />
         </div>

@@ -16,6 +16,15 @@ export default function Home() {
   const [vslCompleted, setVslCompleted] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
+  // Debug: Log mudanças de estado
+  useEffect(() => {
+    console.log('🔍 DEBUG - showVSL mudou para:', showVSL);
+  }, [showVSL]);
+
+  useEffect(() => {
+    console.log('🔍 DEBUG - vslCompleted mudou para:', vslCompleted);
+  }, [vslCompleted]);
+
   useEffect(() => {
     // Remove o forçar modal aberto
     // Escuta evento global para abrir o modal de qualquer lugar
@@ -25,11 +34,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // VSL abre automaticamente após 2 segundos
+    // 🚨 CORREÇÃO URGENTE: FORÇA VSL A ABRIR SEMPRE APÓS 2 SEGUNDOS
+    console.log('🚀 INICIANDO TIMER DE 2 SEGUNDOS PARA VSL...');
+    
+    // LIMPA QUALQUER LOCALSTORAGE QUE POSSA ESTAR BLOQUEANDO
     localStorage.removeItem('vsl_completed');
     localStorage.removeItem('vsl_viewed');
     
+    // FORÇA ABERTURA DA VSL APÓS 2 SEGUNDOS - SEM VERIFICAÇÕES
     const timer = setTimeout(() => {
+      console.log('🚀 ABRINDO VSL AGORA - FORÇADO!');
       setShowVSL(true);
       setVslCompleted(false);
     }, 2000);
@@ -53,8 +67,34 @@ export default function Home() {
     setShowFormModal(true);
   };
 
+  // Debug: Função para forçar abertura da VSL
+  const forceOpenVSL = () => {
+    console.log('🔧 DEBUG - Forçando abertura da VSL...');
+    localStorage.removeItem('vsl_completed');
+    setShowVSL(true);
+    setVslCompleted(false);
+  };
+
   return (
     <>
+      {/* DEBUG: Botão para forçar VSL */}
+      <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 9999 }}>
+        <button 
+          onClick={forceOpenVSL}
+          style={{ 
+            background: 'red', 
+            color: 'white', 
+            padding: '10px', 
+            border: 'none', 
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '12px'
+          }}
+        >
+          🚨 FORÇAR VSL
+        </button>
+      </div>
+
       {/* VSL Modal */}
       <VSLModal 
         isOpen={showVSL} 
@@ -83,7 +123,7 @@ export default function Home() {
           </div>
 
           {/* Page sections */}
-          <Hero onCTAClick={handleCTAClick} />
+          <Hero onCTAClick={handleCTAClick} showReassistirVSL={vslCompleted} onReassistirVSL={() => setShowVSL(true)} />
           <Workflows />
           <Features />
           <Faq />
