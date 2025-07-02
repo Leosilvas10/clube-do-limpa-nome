@@ -120,7 +120,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4" data-modal="form">
       <div className="relative w-full max-w-md mx-auto bg-white rounded-lg shadow-xl">
         {/* Botão fechar */}
         <button
