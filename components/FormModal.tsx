@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getWhatsAppLink } from "@/utils/aiLinksManager";
 
 interface LeadFormData {
@@ -22,6 +22,11 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Função para enviar dados para o endpoint interno Next.js
   async function submitFormData(data: LeadFormData) {
@@ -114,7 +119,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
     }
   };
 
-  if (!isOpen) {
+  if (!isOpen || !isMounted) {
     return null;
   }
 
@@ -138,7 +143,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   🎯 Receba Sua Oferta Exclusiva
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-900">
                   Preencha seus dados e receba acesso imediato ao método que já transformou milhares de vidas
                 </p>
               </div>
@@ -156,7 +161,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                     value={formData.nome}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent text-gray-900"
                     placeholder="Digite seu nome completo"
                   />
                 </div>
@@ -172,7 +177,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                     value={formData.whatsapp}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent text-gray-900"
                     placeholder="(11) 99999-9999"
                   />
                 </div>
@@ -188,7 +193,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00B5BF] focus:border-transparent text-gray-900"
                     placeholder="seu@email.com"
                   />
                 </div>
@@ -204,7 +209,7 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
 
               {/* Garantia */}
               <div className="mt-4 text-center">
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-900">
                   🔒 Seus dados estão seguros conosco
                 </p>
               </div>
