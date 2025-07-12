@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface VSLModalProps {
   isOpen: boolean;
@@ -8,8 +8,24 @@ interface VSLModalProps {
   onOpenForm?: () => void;
 }
 
+const VTURB_URL =
+  "https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/687265fd54bc1a7af7bd9d83/v4/embed.html";
+
 export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalProps) {
   const [videoEnded, setVideoEnded] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Carrega o SDK do VTurb via useEffect
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!document.getElementById('vturb-sdk-script-loaded')) {
+      const s = document.createElement("script");
+      s.id = "vturb-sdk-script-loaded";
+      s.src = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }, [isOpen]);
 
   // Fecha com ESC
   useEffect(() => {
@@ -47,6 +63,30 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
       window.removeEventListener("message", handleMessage);
     };
   }, [isOpen, onVideoEnd]);
+
+  // Força autoplay via postMessage para o iframe VTurb
+  useEffect(() => {
+    if (isOpen && iframeRef.current) {
+      // Só define o src se for about:blank
+      if (iframeRef.current.src === "about:blank") {
+        iframeRef.current.src =
+          VTURB_URL +
+          (window.location.search || "?") +
+          "&vl=" + encodeURIComponent(window.location.href);
+      }
+      // Espera 1s e tenta forçar play
+      setTimeout(() => {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          iframeRef.current.contentWindow.postMessage({ type: "play" }, "*");
+          iframeRef.current.contentWindow.postMessage({ type: "smartplayer:play" }, "*");
+          iframeRef.current.contentWindow.postMessage({ type: "vturb:play" }, "*");
+        }
+      }, 1000);
+    } else if (!isOpen && iframeRef.current) {
+      // Reseta src ao fechar modal para garantir reload
+      iframeRef.current.src = "about:blank";
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -105,8 +145,10 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
               id="ifr_687265fd54bc1a7af7bd9d83_aspect"
             >
               <iframe
+                ref={iframeRef}
                 frameBorder="0"
                 allowFullScreen
+                allow="autoplay; fullscreen"
                 src="about:blank"
                 id="ifr_687265fd54bc1a7af7bd9d83"
                 style={{
@@ -117,34 +159,10 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
                   height: "100%",
                 }}
                 referrerPolicy="origin"
-                onLoad={function (this: HTMLIFrameElement) {
-                  this.onload = null;
-                  this.src =
-                    "https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/687265fd54bc1a7af7bd9d83/v4/embed.html" +
-                    (window.location.search || "?") +
-                    "&vl=" +
-                    encodeURIComponent(window.location.href);
-                }}
                 title="VSL"
               />
             </div>
           </div>
-          {/* SDK Script VTurb */}
-          <script
-            id="vturb-sdk-script"
-            type="text/javascript"
-            dangerouslySetInnerHTML={{
-              __html: `
-                if (!document.getElementById('vturb-sdk-script-loaded')) {
-                  var s=document.createElement("script");
-                  s.id="vturb-sdk-script-loaded";
-                  s.src="https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
-                  s.async=true;
-                  document.head.appendChild(s);
-                }
-              `,
-            }}
-          />
         </div>
       </div>
 
