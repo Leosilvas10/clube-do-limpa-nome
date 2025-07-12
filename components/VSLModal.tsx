@@ -56,8 +56,6 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           const checkVTurbPlayer = () => {
             const vturbPlayer = document.getElementById('vid-686465f756e58ef04d99705b');
             if (vturbPlayer) {
-              console.log('Player VTurb encontrado!');
-              
               // Encontra o elemento de vídeo dentro do player VTurb
               const findVideoElement = () => {
                 // Procura em diferentes possíveis localizações
@@ -76,6 +74,13 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
                   }
                 }
                 
+                // Procura também por elementos com data-* ou class específicas do VTurb
+                if (!videoElement) {
+                  videoElement = vturbPlayer.querySelector('[data-vturb-video]') || 
+                                vturbPlayer.querySelector('.vturb-video') || 
+                                vturbPlayer.querySelector('video[src*="vturb"]');
+                }
+                
                 return videoElement;
               };
               
@@ -83,21 +88,33 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
               if (videoElement) {
                 videoRef.current = videoElement;
                 
-                console.log('Elemento de vídeo encontrado:', videoElement);
+                // Remove listeners antigos se existirem
+                videoElement.removeEventListener ('timeupdate', handleTimeUpdate);
+                videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+                videoElement.removeEventListener('ended', handleVideoEnd);
                 
                 // Adiciona event listeners para monitorar progresso
                 videoElement.addEventListener('timeupdate', handleTimeUpdate);
                 videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
                 videoElement.addEventListener('ended', handleVideoEnd);
                 
-                console.log('Player VTurb conectado com sucesso!');
+                // Listener adicional para garantir detecção do fim
+                videoElement.addEventListener('pause', () => {
+                  if (videoElement.ended) {
+                    handleVideoEnd();
+                  }
+                });
+                
+                // Listener para detectar mudanças no tempo
+                videoElement.addEventListener('durationchange', () => {
+                  // Duração carregada
+                });
+                
               } else {
-                console.log('Elemento de vídeo não encontrado, tentando novamente...');
                 // Tenta novamente após 500ms se não encontrou o vídeo
                 setTimeout(checkVTurbPlayer, 500);
               }
             } else {
-              console.log('Player VTurb não encontrado, tentando novamente...');
               // Tenta novamente após 500ms se não encontrou o player
               setTimeout(checkVTurbPlayer, 500);
             }
@@ -105,6 +122,91 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
           
           // Inicia a verificação após o script carregar
           setTimeout(checkVTurbPlayer, 1000);
+          
+          // Também tenta detectar via API do VTurb se disponível
+          const checkVTurbAPI = () => {
+            if ((window as any).vturb && (window as any).vturb.ready) {
+              console.log('🔧 API VTurb detectada');
+              (window as any).vturb.onEnd = () => {
+                console.log('🎯 Fim do vídeo detectado via API VTurb');
+                handleVideoEnd();
+              };
+            } else {
+              setTimeout(checkVTurbAPI, 1000);
+            }
+          };
+          setTimeout(checkVTurbAPI, 2000);
+          
+          // Observer para detectar mudanças no DOM (caso o player seja inserido dinamicamente)
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.addedNodes.length > 0) {
+                const vturbPlayer = document.getElementById('vid-686465f756e58ef04d99705b');
+                if (vturbPlayer && !videoRef.current) {
+                  checkVTurbPlayer();
+                }
+              }
+            });
+          });
+          
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+          
+          // Escuta eventos globais do VTurb
+          const handleVTurbEvents = (event: Event) => {
+            if (event.type === 'vturb-ended' || event.type === 'video-ended' || 
+                event.type === 'player-ended' || event.type === 'smartplayer-ended') {
+              handleVideoEnd();
+            }
+          };
+          
+          // Adiciona listeners para vários possíveis eventos do VTurb
+          const vTurbEvents = ['vturb-ended', 'video-ended', 'player-ended', 'smartplayer-ended'];
+          vTurbEvents.forEach(eventType => {
+            window.addEventListener(eventType, handleVTurbEvents);
+          });
+          
+          // Escuta mensagens do player VTurb (caso use postMessage)
+          const handlePostMessage = (event: MessageEvent) => {
+            if (event.data && typeof event.data === 'object') {
+              if (event.data.type === 'video_ended' || 
+                  event.data.type === 'vturb_ended' || 
+                  event.data.event === 'ended' ||
+                  event.data.action === 'ended') {
+                handleVideoEnd();
+              }
+            }
+          };
+          
+          window.addEventListener('message', handlePostMessage);
+          
+          // Monitor para detectar fim do vídeo
+          const endMonitor = setInterval(() => {
+            if (videoRef.current && !videoEnded) {
+              const current = videoRef.current.currentTime;
+              const total = videoRef.current.duration;
+              
+              // Se chegou ao final (com margem de 1 segundo)
+              if (total && current >= total - 1) {
+                handleVideoEnd();
+                clearInterval(endMonitor);
+              }
+            }
+          }, 1000);
+          
+          // Cleanup
+          return () => {
+            clearInterval(endMonitor);
+            observer.disconnect();
+            // Remove os event listeners globais
+            const vTurbEvents = ['vturb-ended', 'video-ended', 'player-ended', 'smartplayer-ended'];
+            vTurbEvents.forEach(eventType => {
+              window.removeEventListener(eventType, handleVTurbEvents);
+            });
+            window.removeEventListener('message', handlePostMessage);
+          };
         }
       }, 200);
     }
@@ -124,8 +226,13 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
   }, [isOpen]);
 
   const handleVideoEnd = () => {
-    setVideoEnded(true);
-    onVideoEnd();
+    console.log('🎬 handleVideoEnd chamado!');
+    if (!videoEnded) {
+      setVideoEnded(true);
+      console.log('✅ Estado videoEnded atualizado para true');
+      console.log('📞 Chamando onVideoEnd...');
+      onVideoEnd();
+    }
     // Removido disparo do evento de Lead e CompleteRegistration do término do vídeo
     // O evento de Lead será disparado apenas após o envio do formulário
   };
@@ -232,6 +339,8 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
             style={{ width: "100%", minHeight: 360 }}
             ref={vturbContainerRef}
           />
+          
+
         </div>
 
 

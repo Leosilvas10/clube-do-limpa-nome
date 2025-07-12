@@ -51,7 +51,7 @@ export default function Workflows({ onCTAClick }: WorkflowsProps) {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Pague menos de R$ 3,23 por dia e limpe seu nome sem comprometer suas finanças. Acessível, possível e com resultados reais.
+                    Apenas uma entrada de R$197,00 (Taxa Administrativa) + 5x de R$97,00. Só começa a pagar 30 dias após o início do processo. Se preferir, pagamento à vista por R$487,00 com entrega do nome limpo em até 7 dias úteis. Parcelamento facilitado de verdade, sem sufoco.
                   </p>
                 </div>
               </div>
@@ -75,7 +75,7 @@ export default function Workflows({ onCTAClick }: WorkflowsProps) {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Acompanhe seu progresso em tempo real, com clareza em cada etapa e suporte constante. Aqui, você sabe exatamente onde está pisando.
+                    Acompanhe o processo em tempo real, com informações claras sobre cada etapa, documento e movimentação. Informação transparente, sem letras miúdas, e suporte constante do início ao fim.
                   </p>
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function Workflows({ onCTAClick }: WorkflowsProps) {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Seu CPF tratado com seriedade. Receba suporte jurídico especializado e orientação prática do início ao fim da jornada.
+                    Seu CPF tratado com seriedade. Receba suporte jurídico especializado, garantia em contrato digital e orientação prática em todas as etapas. Atendimento humanizado e personalizado para garantir sua tranquilidade.
                   </p>
                 </div>
               </div>

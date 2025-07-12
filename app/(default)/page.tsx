@@ -41,9 +41,11 @@ export default function Home() {
   }, []);
 
   const handleVSLEnd = () => {
+    console.log('🏁 handleVSLEnd chamado na página principal!');
     setShowVSL(false);
     setVslCompleted(true);
     localStorage.setItem('vsl_completed', 'true');
+    console.log('📝 Abrindo modal do formulário...');
     setShowFormModal(true); // Abre o modal automaticamente ao finalizar a VSL
   };
   

@@ -56,28 +56,28 @@ export default function Features({ onCTAClick }: FeaturesProps) {
           <div className="mx-auto grid max-w-sm gap-12 sm:max-w-none sm:grid-cols-2 md:gap-x-14 md:gap-y-16 lg:grid-cols-3">
             <article>
               <h3 className="mb-1 font-nacelle text-[1rem] font-semibold text-gray-200">
-                Nome limpo em menos tempo
+                Nome limpo em tempo recorde
               </h3>
               <p className="text-indigo-200/65">
-                Negociamos e agilizamos o processo de retirada das restrições com o apoio jurídico certo. Você não está mais sozinho nessa.
+                Processo imediato: protocolo da ação no mesmo dia e nome 100% limpo em até 7 dias úteis (à vista R$487,00) ou até 15 dias úteis (plano parcelado).
               </p>
             </article>
 
             <article>
               <h3 className="mb-1 font-nacelle text-[1rem] font-semibold text-gray-200">
-                Parcelas que cabem no seu bolso
+                Parcelamento facilitado de verdade
               </h3>
               <p className="text-indigo-200/65">
-                Pagando menos de R$ 3,23 por dia, você pode dar o primeiro passo para sair do sufoco — sem comprometer seu orçamento.
+                Apenas uma entrada de R$197,00 (Taxa Administrativa) + 5x de R$97,00 (só começa a pagar 30 dias após início do processo). Cabe no seu bolso, sem sufoco.
               </p>
             </article>
 
             <article>
               <h3 className="mb-1 font-nacelle text-[1rem] font-semibold text-gray-200">
-                Acompanhamento jurídico completo
+                Acompanhamento jurídico e suporte humanizado
               </h3>
               <p className="text-indigo-200/65">
-                Nossos especialistas acompanham cada etapa do processo, garantindo que seus direitos sejam respeitados e que sua jornada seja segura.
+                Especialistas acompanham cada etapa do processo, com garantia em contrato digital e suporte personalizado do início ao fim.
               </p>
             </article>
 
@@ -86,7 +86,7 @@ export default function Features({ onCTAClick }: FeaturesProps) {
                 Transparência total no processo
               </h3>
               <p className="text-indigo-200/65">
-                Saiba exatamente o que está acontecendo. Cada etapa, cada documento, cada movimento — tudo visível pra você.
+                Acompanhe todo o processo em tempo real, com informações claras sobre cada etapa, documento e movimentação. Sem letras miúdas.
               </p>
             </article>
 
@@ -95,7 +95,7 @@ export default function Features({ onCTAClick }: FeaturesProps) {
                 Acordos com condições exclusivas
               </h3>
               <p className="text-indigo-200/65">
-                Tenha acesso a negociações especiais com empresas e instituições, disponíveis apenas para membros do nosso clube.
+                Negociações diferenciadas, acordos exclusivos e condições especiais disponíveis apenas para membros do Clube Limpa Nome.
               </p>
             </article>
 
@@ -104,7 +104,7 @@ export default function Features({ onCTAClick }: FeaturesProps) {
                 Liberdade para sonhar de novo
               </h3>
               <p className="text-indigo-200/65">
-                Com o nome limpo, o crédito volta, as oportunidades aparecem, e você pode retomar seus planos com tranquilidade.
+              Com seu nome limpo, o crédito volta, oportunidades reaparecem e você pode retomar seus planos com tranquilidade e segurança.
               </p>
             </article>
           </div>

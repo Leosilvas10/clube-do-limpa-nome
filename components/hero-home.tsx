@@ -56,7 +56,7 @@ export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
               <span className="relative inline-flex justify-center whitespace-nowrap bg-gradient-to-r from-blue-500 to-blue-200 bg-clip-text text-transparent">
                 financeiro
               </span>{" "}
-              em até 15 dias.
+              em até 7 dias.
             </h1>
             <div className="mx-auto max-w-3xl">
               <p
@@ -64,8 +64,7 @@ export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
                 data-aos="zoom-y-out"
                 data-aos-delay={300}
               >
-                Saia da inadimplência e volte a ter crédito por menos de R$3,23/dia com um
-                método único que já transformou milhares de vidas.
+                Saia da inadimplência e volte a ter crédito com um método único, já testado por milhares de brasileiros.
               </p>
             </div>
           </div>
@@ -81,7 +80,7 @@ export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
                     alt="Pessoa preocupada com nome sujo"
                     className="w-full max-w-md rounded-lg"
                   />
-                  
+
                   {/* Overlay com botão para reassistir VSL */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
                     <button
