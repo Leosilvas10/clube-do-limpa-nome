@@ -8,22 +8,44 @@ interface VSLModalProps {
   onOpenForm?: () => void;
 }
 
-const VTURB_URL =
-  "https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/687265fd54bc1a7af7bd9d83/v4/embed.html";
+// VTurb player.js embed oficial (não use mais iframe direto)
+const VTURB_PLAYER_ID = "vid-687265fd54bc1a7af7bd9d83";
+const VTURB_SCRIPT = "https://scripts.converteai.net/373f60ba-0f5e-4a3d-9d10-14b049d4eb9b/players/687265fd54bc1a7af7bd9d83/v4/player.js";
 
 export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalProps) {
   const [videoEnded, setVideoEnded] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const scriptLoadedRef = useRef(false);
 
-  // Carrega o SDK do VTurb via useEffect
+  // Carrega player.js no head só 1x por página
   useEffect(() => {
     if (!isOpen) return;
-    if (!document.getElementById('vturb-sdk-script-loaded')) {
+    if (!scriptLoadedRef.current && !document.getElementById('vturb-player-script-loaded')) {
       const s = document.createElement("script");
-      s.id = "vturb-sdk-script-loaded";
-      s.src = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
+      s.id = "vturb-player-script-loaded";
+      s.src = VTURB_SCRIPT;
       s.async = true;
       document.head.appendChild(s);
+      scriptLoadedRef.current = true;
+    }
+  }, [isOpen]);
+
+  // Monta o elemento custom <vturb-smartplayer> dentro do modal
+  useEffect(() => {
+    if (isOpen && playerRef.current) {
+      // Garante idempotência: só cria se ainda não existir
+      if (!document.getElementById(VTURB_PLAYER_ID)) {
+        const el = document.createElement("vturb-smartplayer");
+        el.id = VTURB_PLAYER_ID;
+        el.style.display = "block";
+        el.style.margin = "0 auto";
+        el.style.width = "100%";
+        playerRef.current.appendChild(el);
+      }
+    } else if (!isOpen && playerRef.current) {
+      // Limpa player ao fechar para garantir reload
+      playerRef.current.innerHTML = "";
+      setVideoEnded(false);
     }
   }, [isOpen]);
 
@@ -42,7 +64,7 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
     };
   }, [isOpen, onVideoEnd]);
 
-  // Listener para detectar fim do vídeo via postMessage
+  // Detecta término do vídeo via postMessage do smartplayer
   useEffect(() => {
     if (!isOpen) return;
     const handleMessage = (event: MessageEvent) => {
@@ -64,30 +86,6 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
     };
   }, [isOpen, onVideoEnd]);
 
-  // Força autoplay via postMessage para o iframe VTurb
-  useEffect(() => {
-    if (isOpen && iframeRef.current) {
-      // Só define o src se for about:blank
-      if (iframeRef.current.src === "about:blank") {
-        iframeRef.current.src =
-          VTURB_URL +
-          (window.location.search || "?") +
-          "&vl=" + encodeURIComponent(window.location.href);
-      }
-      // Espera 1s e tenta forçar play
-      setTimeout(() => {
-        if (iframeRef.current && iframeRef.current.contentWindow) {
-          iframeRef.current.contentWindow.postMessage({ type: "play" }, "*");
-          iframeRef.current.contentWindow.postMessage({ type: "smartplayer:play" }, "*");
-          iframeRef.current.contentWindow.postMessage({ type: "vturb:play" }, "*");
-        }
-      }, 1000);
-    } else if (!isOpen && iframeRef.current) {
-      // Reseta src ao fechar modal para garantir reload
-      iframeRef.current.src = "about:blank";
-    }
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
   return (
@@ -107,8 +105,10 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
             border-radius: 8px;
             overflow: hidden;
           }
-          .vturb-container iframe {
-            border: none !important;
+          vturb-smartplayer, .vturb-container vturb-smartplayer {
+            display: block !important;
+            width: 100% !important;
+            min-height: 400px;
             border-radius: 8px;
           }
         `,
@@ -136,33 +136,8 @@ export default function VSLModal({ isOpen, onVideoEnd, onOpenForm }: VSLModalPro
 
         {/* Player VTurb */}
         <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl flex-1 max-h-[70vh] vturb-container">
-          <div
-            id="ifr_687265fd54bc1a7af7bd9d83_wrapper"
-            style={{ margin: "0 auto", width: "100%" }}
-          >
-            <div
-              style={{ padding: "56.25% 0 0 0", position: "relative" }}
-              id="ifr_687265fd54bc1a7af7bd9d83_aspect"
-            >
-              <iframe
-                ref={iframeRef}
-                frameBorder="0"
-                allowFullScreen
-                allow="autoplay; fullscreen"
-                src="about:blank"
-                id="ifr_687265fd54bc1a7af7bd9d83"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                }}
-                referrerPolicy="origin"
-                title="VSL"
-              />
-            </div>
-          </div>
+          {/* Aqui entra o smartplayer custom element */}
+          <div ref={playerRef} style={{ width: "100%" }} />
         </div>
       </div>
 
