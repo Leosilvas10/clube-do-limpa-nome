@@ -13,9 +13,11 @@ function formatTime(seconds: number) {
 interface HeroHomeProps {
   onReplayVSL?: () => void;
   onCTAClick?: () => void;
+  showReassistirVSL?: boolean;
+  onReassistirVSL?: () => void;
 }
 
-export default function HeroHome({ onReplayVSL, onCTAClick }: HeroHomeProps) {
+export default function HeroHome({ onReplayVSL, onCTAClick, showReassistirVSL, onReassistirVSL }: HeroHomeProps) {
   // 15 minutos em segundos
   const INITIAL_TIME = 15 * 60;
   const [timer, setTimer] = useState(INITIAL_TIME);
