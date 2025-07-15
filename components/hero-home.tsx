@@ -58,7 +58,7 @@ export default function HeroHome({ onReplayVSL, onCTAClick, showReassistirVSL, o
               <span className="relative inline-flex justify-center whitespace-nowrap bg-gradient-to-r from-blue-500 to-blue-200 bg-clip-text text-transparent">
                 financeiro
               </span>{" "}
-              em até 7 dias.
+              em até 10 dias.
             </h1>
             <div className="mx-auto max-w-3xl">
               <p
