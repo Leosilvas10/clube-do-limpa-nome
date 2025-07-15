@@ -90,18 +90,9 @@ export default function FormModal({ isOpen, onClose }: FormModalProps) {
             currency: "BRL"
           });
         }
-        
-        // Abrir WhatsApp com os dados do lead
-        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
-        const nome = formData.nome;
-        const telefone = formData.whatsapp;
-        const email = formData.email;
-        const msg = `Olá! Meu nome é ${nome}, meu WhatsApp é ${telefone} e meu e-mail é ${email}. Quero receber minha oferta exclusiva!`;
-        const link = getWhatsAppLink() || `https://wa.me/${whatsappNumber.replace(/[^\d]/g, "")}`;
-        const url = `${link}?text=${encodeURIComponent(msg)}`;
-        window.open(url, "_blank");
 
-        // Fecha o modal após mostrar a mensagem
+        // *** REMOVIDO O REDIRECIONAMENTO AUTOMÁTICO PARA WHATSAPP AQUI ***
+
         setTimeout(() => {
           onClose();
           setShowSuccess(false);
