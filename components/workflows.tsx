@@ -51,7 +51,7 @@ export default function Workflows({ onCTAClick }: WorkflowsProps) {
                     </span>
                   </div>
                   <p className="text-indigo-200/65">
-                    Apenas uma entrada de R$197,00 (Taxa Administrativa) + 5x de R$97,00. Só começa a pagar 30 dias após o início do processo. Se preferir, pagamento à vista por R$487,00 com entrega do nome limpo em até 7 dias úteis. Parcelamento facilitado de verdade, sem sufoco.
+                    Apenas uma entrada de R$247,00 (Taxa Administrativa) + 5x de R$97,00. Só começa a pagar 30 dias após o início do processo. Se preferir, pagamento à vista por R$487,00 com entrega do nome limpo em até 7 dias úteis. Parcelamento facilitado de verdade, sem sufoco.
                   </p>
                 </div>
               </div>

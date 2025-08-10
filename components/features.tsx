@@ -68,7 +68,7 @@ export default function Features({ onCTAClick }: FeaturesProps) {
                 Parcelamento facilitado de verdade
               </h3>
               <p className="text-indigo-200/65">
-                Apenas uma entrada de R$197,00 (Taxa Administrativa) + 5x de R$97,00 (só começa a pagar 30 dias após início do processo). Cabe no seu bolso, sem sufoco.
+                Apenas uma entrada de R$247,00 (Taxa Administrativa) + 5x de R$97,00 (só começa a pagar 30 dias após início do processo). Cabe no seu bolso, sem sufoco.
               </p>
             </article>
 
